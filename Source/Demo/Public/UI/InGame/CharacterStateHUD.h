@@ -9,6 +9,8 @@
 /**
  * 
  */
+class UProgressBar;
+
 UCLASS()
 class DEMO_API UCharacterStateHUD : public UUserWidget
 {

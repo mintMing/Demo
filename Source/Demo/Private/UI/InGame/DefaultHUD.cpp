@@ -10,3 +10,7 @@ ADefaultHUD::ADefaultHUD()
 {
 
 }
+
+void ADefaultHUD::BeginPlay()
+{
+}

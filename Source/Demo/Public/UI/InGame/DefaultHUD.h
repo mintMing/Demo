@@ -11,8 +11,6 @@
  */
 class UCharacterStateHUD;
 
-
-
 UCLASS()
 class DEMO_API ADefaultHUD : public AHUD
 {
