@@ -188,6 +188,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
 	float CharacterTurnInterpSpeed;
 
+	// 获取当前体力值
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE float GetCurrentStamina() const { return Stamina; };
+
+	// 获取当前最大体力值
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE float GetMaxStamine() const { return MaxStamina; };
+
 protected:
 
 	virtual void AttackMode() PURE_VIRTUAL(APlayer_Base::AttackMode, );
