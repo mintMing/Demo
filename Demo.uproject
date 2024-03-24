@@ -1,0 +1,46 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.3",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "Demo",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"UMG"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		},
+		{
+			"Name": "HairModelingToolset",
+			"Enabled": true
+		},
+		{
+			"Name": "AlembicHairImporter",
+			"Enabled": true
+		},
+		{
+			"Name": "HairStrands",
+			"Enabled": true
+		},
+		{
+			"Name": "ExampleCustomDataInterface",
+			"Enabled": true
+		},
+		{
+			"Name": "MotionWarping",
+			"Enabled": true
+		}
+	]
+}
