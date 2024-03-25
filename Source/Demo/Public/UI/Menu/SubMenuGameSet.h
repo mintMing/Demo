@@ -41,7 +41,7 @@ public:
 
 	// ª≠√Ê…Ë÷√
 	UPROPERTY(BlueprintReadWrite, Category = "CheckBox", meta = (BindWidget))
-	TObjectPtr<UCheckBox> FrameRateDisplay;
+	TObjectPtr<UCheckBox> FramesRateDisplay;
 
 	UPROPERTY(BlueprintReadWrite, Category = "CheckBox", meta = (BindWidget))
 	TObjectPtr<UCheckBox> VSync;
@@ -53,7 +53,7 @@ public:
 	TObjectPtr<UComboBoxString> GameWindowMode;
 
 	UPROPERTY(BlueprintReadWrite, Category = "List", meta = (BindWidget))
-	TObjectPtr<UComboBoxString> GameFrameLimit;
+	TObjectPtr<UComboBoxString> GameFramesLimit;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Button", meta = (BindWidget))
 	TObjectPtr<UButton> RestoreDefaultFrame;

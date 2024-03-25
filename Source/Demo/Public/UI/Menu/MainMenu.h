@@ -20,15 +20,15 @@ class DEMO_API UMainMenu : public UUserWidget
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UButton> StartGame_Button;
+	TObjectPtr<UButton> StartGame;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UButton> ExitGame_Button;
+	TObjectPtr<UButton> ExitGame;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UButton> Setting_Button;
+	TObjectPtr<UButton> Setting;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UButton> AboutGames_Button;
+	TObjectPtr<UButton> AboutGames;
 	
 };
