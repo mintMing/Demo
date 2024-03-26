@@ -21,6 +21,7 @@ class UStaticMeshComponent;
 class UArrowComponent;
 struct FInputActionValue;
 
+
 UCLASS()
 class DEMO_API ACharacter_Base : public ACharacter
 {
@@ -88,6 +89,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Action")
 	TObjectPtr<UInputAction> IA_GameSet;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Action")
+	UInputAction *AtkAction;
 
 
 	// 状态属性
@@ -213,5 +217,7 @@ protected:
 
 	// 原地后退
 	virtual void StepBackInPlace() PURE_VIRTUAL(APlayer_Base::StepBackInPlace, );
+
+
 
 };

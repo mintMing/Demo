@@ -16,12 +16,15 @@ class UNiagaraComponent;
 class USkeletalMeshComponent;
 class UStaticMeshComponent;
 
+
+
+
 UCLASS()
 class DEMO_API AChert : public ACharacter_Base
 {
 	GENERATED_BODY()
 
-	AChert();
+
 
 	virtual void BeginPlay() override;
 
@@ -87,6 +90,7 @@ protected:
 
 	// 动作转换
 public:
+	AChert();
 	// 攻击方式
 	virtual void AttackMode() override;
 
@@ -125,6 +129,4 @@ public:
 	virtual void Slide() override;
 	bool IsCanSlide();
 
-
-	
 };

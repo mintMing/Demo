@@ -11,6 +11,7 @@
 #include "Controller/DefaultPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h" // GetCharacterMovement
 
+
 AChert::AChert()
 {
 	Hair = CreateDefaultSubobject<UGroomComponent>(TEXT("GroomComponent1"));
@@ -33,6 +34,7 @@ AChert::AChert()
 	bUseControllerRotationRoll = false;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+
 }
 
 void AChert::BeginPlay()
@@ -85,7 +87,7 @@ void AChert::SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
 		}
 		if (IA_Attack)
 		{
-			EnhancedInputComponent->BindAction(IA_Attack, ETriggerEvent::Started, this, &AChert::AttackMode);
+			EnhancedInputComponent->BindAction(IA_Attack, ETriggerEvent::Started, this, &AChert::MeleeCombatAttack);
 		}
 		if (IA_ChargeAttack)
 		{

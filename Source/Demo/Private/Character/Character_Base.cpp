@@ -67,6 +67,9 @@ ACharacter_Base::ACharacter_Base()
 	MoveForwardVal = 0.0f;
 	MoveRightVal = 0.0f;
 
+	
+
+	
 }
 
 // Called when the game starts or when spawned
