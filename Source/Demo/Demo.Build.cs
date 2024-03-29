@@ -9,7 +9,7 @@ public class Demo : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "Niagara", "HairStrandsCore",
-        "AIModule", "GameplayTasks"});
+        "AIModule", "GameplayTasks", "CommonUI", "UMG","MotionWarping"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

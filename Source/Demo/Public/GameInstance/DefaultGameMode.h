@@ -17,6 +17,6 @@ class DEMO_API ADefaultGameMode : public AGameModeBase
 	ADefaultGameMode();
 
 public:
-	class AChert *Chert;
+	//class AChert *Chert;
 	
 };

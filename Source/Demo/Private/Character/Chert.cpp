@@ -10,6 +10,9 @@
 #include "GameFramework/PlayerController.h"
 #include "Controller/DefaultPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h" // GetCharacterMovement
+//#include "Component/CharacterMotionWarping.h"
+
+#include "MotionWarpingComponent.h"
 
 
 AChert::AChert()
@@ -29,11 +32,18 @@ AChert::AChert()
 	SwordScar = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SwordScar"));
 	SwordScar->SetupAttachment(Sword);
 
+	/*
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+	MotionWarpingComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	*/
+
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+
+	//bIsUseDynamicCamera = true;
 
 }
 
@@ -93,10 +103,13 @@ void AChert::SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
 		{
 			EnhancedInputComponent->BindAction(IA_ChargeAttack, ETriggerEvent::Triggered, this, &AChert::ChargeAttack);
 		}
+		/*
 		if (IA_Roll)
 		{
 			EnhancedInputComponent->BindAction(IA_Roll, ETriggerEvent::Started, this, &AChert::Roll);
-		}/*
+		}
+		*/
+		/*
 		if (IA_Slide)
 		{
 			EnhancedInputComponent->BindAction(IA_Slide, ETriggerEvent::Started, this, &AChert::Slide);
@@ -201,12 +214,13 @@ bool AChert::IsCanSwordAttack()
 	return false;
 }
 
+/*
 void AChert::Roll()
 {
 	switch (WeaponType)
 	{
 	case EWeaponType::MELEE:
-		MeleeCombatRoll();
+		MeleeRolling();
 		break;
 	case EWeaponType::SWORD:
 		SwordRoll();
@@ -221,7 +235,8 @@ void AChert::MeleeCombatRoll()
 		CharacterState = ECharacterState::ROLLING;
 		CameraShakeFeedback();
 		Stamina -= MeleeCombatRollSubStamina;
-		DirectionAnims(MeleeCombatRollAnims);
+		//DirectionAnims(MeleeCombatRollAnims);
+		MeleeRolling();
 	}
 	else
 	{
@@ -271,6 +286,7 @@ bool AChert::IsCanSwordRoll()
 	}
 	return false;
 }
+*/
 
 void AChert::ChangeWeapons()
 {
@@ -382,3 +398,23 @@ bool AChert::IsCanSlide()
 	}
 	return false;
 }
+
+/*
+bool AChert::GetUseDynamicCamera()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("UseDynamicCamera")));
+	return bIsUseDynamicCamera;
+}
+
+void AChert::SetDynamicCamera(bool UseDynamicCamera)
+{
+	this->bIsUseDynamicCamera = UseDynamicCamera;
+}
+
+void AChert::GetDCProperty(FTransform &PivotTransform, double &FOV, bool &bIsRight)
+{
+	PivotTransform = FTransform();
+	FOV = 0.0f;
+	bIsRight = false;
+}
+*/

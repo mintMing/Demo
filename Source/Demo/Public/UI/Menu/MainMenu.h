@@ -18,7 +18,7 @@ class DEMO_API UMainMenu : public UUserWidget
 	GENERATED_BODY()
 
 public:
-
+	/*
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UButton> StartGame;
 
@@ -30,5 +30,5 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UButton> AboutGames;
-	
+	*/
 };

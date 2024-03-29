@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/Character_Base.h"
+
 #include "Chert.generated.h"
 
 /**
@@ -15,16 +16,13 @@ class UAnimMontage;
 class UNiagaraComponent;
 class USkeletalMeshComponent;
 class UStaticMeshComponent;
-
-
+class UMotionWarpingComponent;
 
 
 UCLASS()
 class DEMO_API AChert : public ACharacter_Base
 {
 	GENERATED_BODY()
-
-
 
 	virtual void BeginPlay() override;
 
@@ -52,6 +50,12 @@ private:
 	// ½£ºÛ
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UNiagaraComponent> SwordScar;
+
+	/*
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
+	*/
+ 
 
 	// ¶¯»­
 private:
@@ -101,14 +105,19 @@ public:
 	bool IsCanSwordAttack();
 
 	// ·­¹ö
+	/*
 	UFUNCTION(BlueprintCallable)
 	virtual void Roll() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void MeleeRolling();
 
 	void MeleeCombatRoll();
 	bool IsCanMeleeCombatRoll();
 
-	void SwordRoll();
+	void SwordRolling();
 	bool IsCanSwordRoll();
+	*/
 
 	// ÇÐ»»ÎäÆ÷
 	virtual void ChangeWeapons() override;
@@ -129,4 +138,18 @@ public:
 	virtual void Slide() override;
 	bool IsCanSlide();
 
+	/*
+public:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Camera")
+	bool bIsUseDynamicCamera;
+
+public:
+
+	virtual bool GetUseDynamicCamera() override;
+
+	virtual void SetDynamicCamera(bool UseDynamicCamera) override;
+
+	virtual void GetDCProperty(FTransform &PivotTransform, double &CameraFOV, bool &IsRight) override;
+	*/
 };

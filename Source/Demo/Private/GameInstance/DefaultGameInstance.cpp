@@ -6,6 +6,32 @@
 #include "GameFramework/GameUserSettings.h"
 #include "InputMappingContext.h"
 
+
+
+UDefaultGameInstance::UDefaultGameInstance()
+{
+	/*
+	PlayerFrameSet.bDisplayFrames = false;
+	PlayerFrameSet.bVSyn = false;
+	PlayerFrameSet.ResolutionRatio.X = 1920;
+	PlayerFrameSet.ResolutionRatio.Y = 1080;
+	PlayerFrameSet.WMode = EWindowMode::Windowed;
+	PlayerFrameSet.FramesLimint = FString("60");
+
+
+	DefaultFramesSet.bDisplayFrames = false;
+	DefaultFramesSet.bVSyn = false;
+	DefaultFramesSet.ResolutionRatio.X = 1920;
+	DefaultFramesSet.ResolutionRatio.Y = 1080;
+	DefaultFramesSet.WMode = EWindowMode::Windowed;
+	DefaultFramesSet.FramesLimint = FString("60");
+
+	PlayerVolumeSet.TotalVolume = 1;
+	PlayerVolumeSet.MusicVolume = 1;
+	PlayerVolumeSet.SoundEffects = 1;
+	*/
+}
+/*
 void UDefaultGameInstance::LoadDisplaySet(const FFrameSetInfo &FrameSet)
 {
 	UGameUserSettings *UserSet = UGameUserSettings::GetGameUserSettings();
@@ -29,24 +55,4 @@ void UDefaultGameInstance::LoadDisplaySet(const FFrameSetInfo &FrameSet)
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("UserSet is null"));
 	}
 }
-
-void UDefaultGameInstance::RestoreDefaulInputSet()
-{
-	const TArray < FEnhancedActionKeyMapping> &DefaultMappings = DefaultIMC->GetMappings();
-	FEnhancedActionKeyMapping &DefaultMapping = DefaultIMC->GetMapping(0);
-
-	const TArray<FEnhancedActionKeyMapping> &PlayerMappings = PlayerIMC->GetMappings();
-
-
-	if (PlayerMappings.Num() == DefaultMappings.Num())
-	{
-		for (int i = 0; i < PlayerMappings.Num(); i++)
-		{
-			PlayerIMC->GetMapping(i) = DefaultIMC->GetMapping(i);
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Array sizes mismatch. Unable to restore default input settings."));
-	}
-}
+*/

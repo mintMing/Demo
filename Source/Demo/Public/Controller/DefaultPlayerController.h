@@ -14,4 +14,11 @@ class DEMO_API ADefaultPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+
+private:
+
+	ADefaultPlayerController();
+
+	//virtual void OnPossess(APawn *aPawn) override;
+
 };

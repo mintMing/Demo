@@ -173,15 +173,23 @@ protected:
 
 	// 具有方向行的动画
 	void DirectionAnims(TArray<UAnimMontage *> DirectionAnims);
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FVector CharacterDirection; 	// 角色方向
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float MoveRightVal;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float MoveForwardVal;
+
+	
 	FVector ForwardVec;
 	FVector RightVec;
+	
 
 	// 体力不足提示
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void ExhaustedStaminaPrompt();
 
 	// 摄像机震动反馈
@@ -204,7 +212,7 @@ protected:
 
 	virtual void AttackMode() PURE_VIRTUAL(APlayer_Base::AttackMode, );
 
-	virtual void Roll() PURE_VIRTUAL(APlayer_Base::Roll, );
+	//virtual void Roll() PURE_VIRTUAL(APlayer_Base::Roll, );
 
 	virtual void Slide() PURE_VIRTUAL(APlayer_Base::Slide, );
 

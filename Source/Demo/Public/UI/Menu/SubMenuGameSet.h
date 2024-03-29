@@ -20,11 +20,9 @@ class DEMO_API USubMenuGameSet : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	/*
 	UPROPERTY(BlueprintReadWrite, Category = "Button", meta = (BindWidget))
 	TObjectPtr<UButton> GameSet;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Button", meta = (BindWidget))
-	TObjectPtr<UButton> InputSet;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Button", meta = (BindWidget))
 	TObjectPtr<UButton> ScreenSet;
@@ -60,9 +58,5 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Button", meta = (BindWidget))
 	TObjectPtr<UButton> AllowSet;
-
-	//  ‰»Î…Ë÷√
-	UPROPERTY(BlueprintReadWrite, Category = "Button", meta = (BindWidget))
-	TObjectPtr<UButton> RestoreDefaultInput;
-	
+	*/
 };

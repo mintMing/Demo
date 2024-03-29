@@ -62,14 +62,9 @@ ACharacter_Base::ACharacter_Base()
 	SwordAttackSubStamina = 20.0f;
 	SlideSubStamina = 10.0f;
 
-	ForwardVec = FVector(0, 0, 0);
-	RightVec = FVector(0, 0, 0);
 	MoveForwardVal = 0.0f;
 	MoveRightVal = 0.0f;
 
-	
-
-	
 }
 
 // Called when the game starts or when spawned
@@ -84,16 +79,18 @@ void ACharacter_Base::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (CharacterState == ECharacterState::IDLE && GetVelocity().Size() < 5.0f)
-	{
+	
+	//if (CharacterState == ECharacterState::IDLE && GetVelocity().Size() < 5.0f)
+	//{
 		ForwardVec = (MoveForwardVal * UKismetMathLibrary::GetForwardVector(FRotator(0, GetController()->GetControlRotation().Yaw, 0)) * 200.0f);
 		RightVec = (MoveRightVal * UKismetMathLibrary::GetRightVector(FRotator(0, GetController()->GetControlRotation().Yaw, 0)) * 200.0f);
 		CharacterDirection = GetActorLocation() + ForwardVec + RightVec;
 
-		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), ((CharacterDirection - GetActorLocation()).GetSafeNormal()).Rotation(), GetWorld()->GetDeltaSeconds(), CharacterTurnInterpSpeed);
-		SetActorRotation(NewRotation);
-	}
+		//FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), ((CharacterDirection - GetActorLocation()).GetSafeNormal()).Rotation(), GetWorld()->GetDeltaSeconds(), CharacterTurnInterpSpeed);
+		//SetActorRotation(NewRotation);
+	//}
 	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), CharacterDirection, 300.0f, FColor::Red);
+	
 }
 
 // Called to bind functionality to input
