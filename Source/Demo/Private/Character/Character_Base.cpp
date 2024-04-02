@@ -18,7 +18,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-
+#include "Kismet/GameplayStatics.h"
+#include "AICharacter/AISamurai.h"
 
 // Sets default values
 ACharacter_Base::ACharacter_Base()
@@ -49,6 +50,7 @@ ACharacter_Base::ACharacter_Base()
 
 	bIsRun = false;
 	bIsEquip = false;
+	bIgnoreHit = false;
 
 	LastMeleeIndex = 0;
 	LastSwordIndex = 0;
@@ -65,12 +67,26 @@ ACharacter_Base::ACharacter_Base()
 	MoveForwardVal = 0.0f;
 	MoveRightVal = 0.0f;
 
+	AICharacterTarget = nullptr;
+
+	MeleeSphereCollisionRadius = 35.0f;
+
+
 }
 
 // Called when the game starts or when spawned
 void ACharacter_Base::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	/*
+	if (InsAICharacterTarget == nullptr)
+	{
+		FindAICharacterPtr();
+	}
+	*/
+
+	FindAICharacterPtr();
 	
 }
 
@@ -91,6 +107,7 @@ void ACharacter_Base::Tick(float DeltaTime)
 	//}
 	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), CharacterDirection, 300.0f, FColor::Red);
 	
+	
 }
 
 // Called to bind functionality to input
@@ -110,6 +127,9 @@ void ACharacter_Base::Move(const FInputActionValue &Val)
 	MoveForwardVal = MoveVec.Y;
 	MoveRightVal = MoveVec.X;
 
+	MoveAxis = MoveVec;
+
+
 	if (PC != nullptr)
 	{
 		// 获取 Yaw ,即水平旋转角度
@@ -125,6 +145,11 @@ void ACharacter_Base::Move(const FInputActionValue &Val)
 		AddMovementInput(MoveDir, MoveVec.Y);
 		AddMovementInput(RightDirection, MoveVec.X);
 	}
+}
+
+void ACharacter_Base::MoveEnd()
+{
+	MoveAxis = FVector2D(0, 0);
 }
 
 void ACharacter_Base::Look(const FInputActionValue &Val)
@@ -252,5 +277,43 @@ void ACharacter_Base::DirectionAnims(TArray<UAnimMontage *> DirectionAnims)
 			}
 		}
 
+	}
+}
+
+void ACharacter_Base::EnableMeleeCollision()
+{
+	FVector SpherePos = GetActorLocation() + (GetActorForwardVector() * 35.0f);
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectType;
+
+	// pawn
+	ObjectType.Add(EObjectTypeQuery::ObjectTypeQuery3);
+
+	// 碰撞忽略
+	TArray<AActor *> IgnoreActors;
+	IgnoreActors.Add(this);
+
+	// 碰撞目标
+	TArray<AActor *> OverlapActors;
+
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), SpherePos, MeleeSphereCollisionRadius, ObjectType, nullptr, IgnoreActors, OverlapActors);
+
+	for (auto CollisionTarget : OverlapActors)
+	{
+		if (AAISamurai *Target = Cast<AAISamurai>(CollisionTarget))
+		{
+			//Target->Affected();
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("打到了"));
+		}
+	}
+}
+
+void ACharacter_Base::FindAICharacterPtr()
+{
+	AICharacterTarget = Cast<AAISamurai>(UGameplayStatics::GetActorOfClass(GetWorld(), InsAICharacterTarget));
+
+	if (AICharacterTarget == nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Character_Base：FindAICharacterPtr of AICharacterTarget is nullptr"));
 	}
 }

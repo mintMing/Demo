@@ -6,7 +6,7 @@
 #include "AICharacterState.generated.h"
 
 
-
+/*
 UENUM(BlueprintType)
 enum class EAICharacterState : uint8
 {
@@ -18,4 +18,15 @@ enum class EAICharacterState : uint8
 	WATCH,		// ¹Û²ì
 	CHASE,		// ×·»÷
 	ACCUMULATEPOWER,	// ÐîÁ¦
+};
+*/
+
+UENUM(BlueprintType)
+enum class EEnemyBehavior : uint8
+{
+	NONE,
+	IDLE,			//¿ÕÏÐ
+	ATTACK,			//¹¥»÷
+	ROLLING,		//·­¹ö
+	INJURY			//ÊÜ»÷
 };

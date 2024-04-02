@@ -13,7 +13,9 @@
 				"UMG",
 				"CoreUObject",
 				"CommonUI",
-				"MotionWarping"
+				"MotionWarping",
+				"AnimGraphRuntime",
+				"AIModule"
 			]
 		}
 	],

@@ -18,6 +18,7 @@ class USkeletalMeshComponent;
 class UStaticMeshComponent;
 class UMotionWarpingComponent;
 
+class UComboGuide;
 
 UCLASS()
 class DEMO_API AChert : public ACharacter_Base
@@ -51,12 +52,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UNiagaraComponent> SwordScar;
 
-	/*
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
-	*/
- 
-
 	// 动画
 private:
 
@@ -64,36 +59,20 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimMontage", meta = (AllowPrivateAccess = "true"))
 	TArray<UAnimMontage *> MeleeCombatAnims;
 
-	// 剑攻击
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimMontage", meta = (AllowPrivateAccess = "true"))
-	TArray<UAnimMontage *> SwordAttackAnims;
-
-	// 近战翻滚
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AnimMontage, meta = (AllowPrivateAccess = "true"))
-	TArray<UAnimMontage *> MeleeCombatRollAnims;
-
-	// 持剑翻滚
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AnimMontage, meta = (AllowPrivateAccess = "true"))
-	TArray<UAnimMontage *> SwordRollAnims;
-
 	// 滑行
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AnimMontage, meta = (AllowPrivateAccess = "true"))
 	TArray<UAnimMontage *> SlideAnims;
 
-	// 剑 蓄力攻击
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AnimMontage, meta = (AllowPrivateAccess = "true"))
-	TArray<UAnimMontage *> SwordChargeAttackAnim;
 
 	// 属性
 protected:
 
-	// 蓄力攻击减少的体力值
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
-	float ChargeAttackSubStamina;
+
 
 
 	// 动作转换
 public:
+
 	AChert();
 	// 攻击方式
 	virtual void AttackMode() override;
@@ -103,21 +82,6 @@ public:
 
 	void SwordAttack();
 	bool IsCanSwordAttack();
-
-	// 翻滚
-	/*
-	UFUNCTION(BlueprintCallable)
-	virtual void Roll() override;
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void MeleeRolling();
-
-	void MeleeCombatRoll();
-	bool IsCanMeleeCombatRoll();
-
-	void SwordRolling();
-	bool IsCanSwordRoll();
-	*/
 
 	// 切换武器
 	virtual void ChangeWeapons() override;
@@ -129,27 +93,22 @@ public:
 
 	virtual void StopDefense() override;
 
-	// 蓄力攻击
-	void ChargeAttack();
-	bool IsCanChargeAttack();
-
-
 	// 滑行
 	virtual void Slide() override;
 	bool IsCanSlide();
 
-	/*
+	// 受击
+	virtual void Affected() override;
+
+	void MeleeAffected();
+	void SwordAffected();
+	bool IsCanAffected();
+
+
+	// 连招
 public:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Camera")
-	bool bIsUseDynamicCamera;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UComboGuide *ComboGuide;
 
-public:
-
-	virtual bool GetUseDynamicCamera() override;
-
-	virtual void SetDynamicCamera(bool UseDynamicCamera) override;
-
-	virtual void GetDCProperty(FTransform &PivotTransform, double &CameraFOV, bool &IsRight) override;
-	*/
 };

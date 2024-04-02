@@ -14,6 +14,20 @@
 
 #include "MotionWarpingComponent.h"
 
+#include "Combo/ComboGuide.h"
+
+/*
+#include "Combo/ComboTable.h"
+#include "Combo/Tree/DerivedCombo.h"
+#include "Combo/ComboContext.h"
+#include "Combo/ComboDirector.h"
+#include "Combo/Tree/ParentCombo.h"
+#include "Combo/Tree/ActionNode.h"
+#include "Combo/ComboAction.h"
+*/
+
+
+
 
 AChert::AChert()
 {
@@ -32,16 +46,13 @@ AChert::AChert()
 	SwordScar = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SwordScar"));
 	SwordScar->SetupAttachment(Sword);
 
-	/*
-	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
-	MotionWarpingComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	*/
-
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+
+	ComboGuide = CreateDefaultSubobject<UComboGuide>(TEXT("ComboGuide"));
 
 	//bIsUseDynamicCamera = true;
 
@@ -84,7 +95,7 @@ void AChert::SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
 		if (IA_Move)
 		{
 			EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AChert::Move);
-
+			EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Completed, this, &AChert::MoveEnd);
 		}
 		if (IA_Look)
 		{
@@ -97,18 +108,9 @@ void AChert::SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
 		}
 		if (IA_Attack)
 		{
-			EnhancedInputComponent->BindAction(IA_Attack, ETriggerEvent::Started, this, &AChert::MeleeCombatAttack);
+			EnhancedInputComponent->BindAction(IA_Attack, ETriggerEvent::Started, this, &AChert::AttackMode);
 		}
-		if (IA_ChargeAttack)
-		{
-			EnhancedInputComponent->BindAction(IA_ChargeAttack, ETriggerEvent::Triggered, this, &AChert::ChargeAttack);
-		}
-		/*
-		if (IA_Roll)
-		{
-			EnhancedInputComponent->BindAction(IA_Roll, ETriggerEvent::Started, this, &AChert::Roll);
-		}
-		*/
+		
 		/*
 		if (IA_Slide)
 		{
@@ -124,12 +126,12 @@ void AChert::SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
 			EnhancedInputComponent->BindAction(IA_Defense, ETriggerEvent::Triggered, this, &AChert::SwordDefense);
 			EnhancedInputComponent->BindAction(IA_Defense, ETriggerEvent::Completed, this, &AChert::StopDefense);
 		}
-		/*
+		
 		if (IA_GameSet)
 		{
-			EnhancedInputComponent->BindAction(IA_GameSet, ETriggerEvent::Started, this, &AChert::OpenGameSet);
+			//EnhancedInputComponent->BindAction(IA_GameSet, ETriggerEvent::Started, this, &AChert::OpenGameSet);
 		}
-		*/
+		
 	}
 }
 
@@ -165,10 +167,6 @@ void AChert::MeleeCombatAttack()
 		Stamina -= MeleeCombatSubStamina;
 		SequenceAttackAnims(MeleeCombatAnims);
 	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("MeleeCombatAttack is cannot"));
-	}
 }
 
 bool AChert::IsCanMeleeCombatAttack()
@@ -192,11 +190,7 @@ void AChert::SwordAttack()
 		CharacterState = ECharacterState::ATTACK;
 		Stamina -= SwordAttackSubStamina;
 		CameraShakeFeedback();
-		SequenceAttackAnims(SwordAttackAnims);
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("SwordAttack is cannot"));
+		ComboGuide->Pre();
 	}
 }
 
@@ -214,80 +208,6 @@ bool AChert::IsCanSwordAttack()
 	return false;
 }
 
-/*
-void AChert::Roll()
-{
-	switch (WeaponType)
-	{
-	case EWeaponType::MELEE:
-		MeleeRolling();
-		break;
-	case EWeaponType::SWORD:
-		SwordRoll();
-		break;
-	}
-}
-
-void AChert::MeleeCombatRoll()
-{
-	if (IsCanMeleeCombatRoll())
-	{
-		CharacterState = ECharacterState::ROLLING;
-		CameraShakeFeedback();
-		Stamina -= MeleeCombatRollSubStamina;
-		//DirectionAnims(MeleeCombatRollAnims);
-		MeleeRolling();
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("MeleeCombatRoll is cannot"));
-	}
-}
-
-bool AChert::IsCanMeleeCombatRoll()
-{
-	if (CharacterState == ECharacterState::IDLE && Stamina >= MeleeCombatRollSubStamina)
-	{
-		return true;
-	}
-	else if (Stamina < MeleeCombatRollSubStamina)
-	{
-		ExhaustedStaminaPrompt();
-		return false;
-	}
-	return false;
-}
-
-void AChert::SwordRoll()
-{
-	if (IsCanSwordRoll())
-	{
-		CharacterState = ECharacterState::ROLLING;
-		Stamina -= SwordRollSubStamina;
-		CameraShakeFeedback();
-		DirectionAnims(SwordRollAnims);
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("SwordRoll is cannot"));
-	}
-}
-
-bool AChert::IsCanSwordRoll()
-{
-	if (CharacterState == ECharacterState::IDLE && Stamina >= SwordRollSubStamina)
-	{
-		return true;
-	}
-	else if (Stamina < SwordRollSubStamina)
-	{
-		ExhaustedStaminaPrompt();
-		return false;
-	}
-	return false;
-}
-*/
-
 void AChert::ChangeWeapons()
 {
 	if (IsCanChangeWeapon())
@@ -304,10 +224,6 @@ void AChert::ChangeWeapons()
 			WeaponType = EWeaponType::MELEE;
 			Sword->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "SWORD");
 		}
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("ChangeWeapons is cannot"));
 	}
 }
 
@@ -353,30 +269,6 @@ void AChert::StopDefense()
 	CharacterState = ECharacterState::IDLE;
 }
 
-void AChert::ChargeAttack()
-{
-	if (IsCanSwordAttack())
-	{
-		CharacterState = ECharacterState::ATTACK;
-		Stamina -= SwordAttackSubStamina * 0.25;
-		CameraShakeFeedback();
-		UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance();
-		if (CurAnimIns)
-		{
-			CurAnimIns->Montage_Play(SwordChargeAttackAnim[0]);
-		}
-	}
-}
-
-bool AChert::IsCanChargeAttack()
-{
-	if (IsCanSwordAttack() && WeaponType == EWeaponType::SWORD)
-	{
-		return true;
-	}
-	return false;
-}
-
 void AChert::Slide()
 {
 	CameraShakeFeedback();
@@ -399,13 +291,59 @@ bool AChert::IsCanSlide()
 	return false;
 }
 
-/*
-bool AChert::GetUseDynamicCamera()
+void AChert::Affected()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("UseDynamicCamera")));
-	return bIsUseDynamicCamera;
+	if (IsCanAffected())
+	{
+		switch (WeaponType)
+		{
+
+		case EWeaponType::MELEE:
+			MeleeAffected();
+			break;
+		case EWeaponType::SWORD:
+			SwordAffected();
+			break;
+
+		}
+	}
 }
 
+void AChert::MeleeAffected()
+{
+	CharacterState = ECharacterState::AFFECTED;
+
+	CameraShakeFeedback();
+	/*
+	RandomPlayAnims(MeleeInjuryAnims);
+
+	if (HitPoint <= FDamageLevel::Common)
+	{
+		HitPoint = 0;
+		Die();
+	}
+	else
+	{
+		HitPoint -= FDamageLevel::Common;
+	}
+	*/
+}
+
+void AChert::SwordAffected()
+{
+}
+
+bool AChert::IsCanAffected()
+{
+	if (!bIgnoreHit)
+	{
+		return true;
+	}
+	return false;
+}
+
+
+/*
 void AChert::SetDynamicCamera(bool UseDynamicCamera)
 {
 	this->bIsUseDynamicCamera = UseDynamicCamera;

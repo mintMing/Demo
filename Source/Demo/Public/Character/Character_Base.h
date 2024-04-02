@@ -21,6 +21,8 @@ class UStaticMeshComponent;
 class UArrowComponent;
 struct FInputActionValue;
 
+class AAISamurai;
+
 
 UCLASS()
 class DEMO_API ACharacter_Base : public ACharacter
@@ -103,6 +105,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
 	bool bIsRun;
 
+	// 是否忽略受击
+	UPROPERTY(BlueprintReadWrite, Category = Attribute)
+	bool bIgnoreHit;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
 	EWeaponType WeaponType;
 
@@ -150,6 +156,9 @@ protected:
 protected:
 	void Move(const FInputActionValue &Val);
 
+	void MoveEnd();
+
+
 	void Look(const FInputActionValue &Val);
 
 	void StartRunning();
@@ -183,9 +192,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float MoveForwardVal;
 
-	
 	FVector ForwardVec;
 	FVector RightVec;
+
+	// --------------
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "RootMotion")
+	FVector2D MoveAxis;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "RootMotion")
+	float DeltaRotator = 5.f;
 	
 
 	// 体力不足提示
@@ -226,6 +241,27 @@ protected:
 	// 原地后退
 	virtual void StepBackInPlace() PURE_VIRTUAL(APlayer_Base::StepBackInPlace, );
 
+	// melee攻击检测
+	UFUNCTION(BlueprintCallable)
+	void EnableMeleeCollision();
 
+	// melee检测半径
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Attribute)
+	float MeleeSphereCollisionRadius;
+
+	// 受击
+	virtual void Affected() PURE_VIRTUAL(APlayer_Base::Affected,);
+
+	// AI
+public:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AITarget")
+	AAISamurai *AICharacterTarget;
+
+	// 参照
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AITarget")
+	TSubclassOf<AAISamurai> InsAICharacterTarget;
+
+	void FindAICharacterPtr();
 
 };
