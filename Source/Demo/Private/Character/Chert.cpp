@@ -10,24 +10,8 @@
 #include "GameFramework/PlayerController.h"
 #include "Controller/DefaultPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h" // GetCharacterMovement
-//#include "Component/CharacterMotionWarping.h"
-
 #include "MotionWarpingComponent.h"
-
 #include "Combo/ComboGuide.h"
-
-/*
-#include "Combo/ComboTable.h"
-#include "Combo/Tree/DerivedCombo.h"
-#include "Combo/ComboContext.h"
-#include "Combo/ComboDirector.h"
-#include "Combo/Tree/ParentCombo.h"
-#include "Combo/Tree/ActionNode.h"
-#include "Combo/ComboAction.h"
-*/
-
-
-
 
 AChert::AChert()
 {
@@ -111,12 +95,11 @@ void AChert::SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
 			EnhancedInputComponent->BindAction(IA_Attack, ETriggerEvent::Started, this, &AChert::AttackMode);
 		}
 		
-		/*
 		if (IA_Slide)
 		{
 			EnhancedInputComponent->BindAction(IA_Slide, ETriggerEvent::Started, this, &AChert::Slide);
 		}
-		*/
+		
 		if (IA_ChangeWeapon)
 		{
 			EnhancedInputComponent->BindAction(IA_ChangeWeapon, ETriggerEvent::Started, this, &AChert::ChangeWeapons);
@@ -163,7 +146,7 @@ void AChert::MeleeCombatAttack()
 	if (IsCanMeleeCombatAttack())
 	{
 		CharacterState = ECharacterState::ATTACK;
-		CameraShakeFeedback();
+		CameraShakeFeedback(true);
 		Stamina -= MeleeCombatSubStamina;
 		SequenceAttackAnims(MeleeCombatAnims);
 	}
@@ -187,16 +170,16 @@ void AChert::SwordAttack()
 {
 	if (IsCanSwordAttack())
 	{
-		CharacterState = ECharacterState::ATTACK;
 		Stamina -= SwordAttackSubStamina;
-		CameraShakeFeedback();
+		CameraShakeFeedback(false);
 		ComboGuide->Pre();
 	}
 }
 
 bool AChert::IsCanSwordAttack()
 {
-	if ((CharacterState == ECharacterState::IDLE || CharacterState == ECharacterState::WALK) && Stamina >= SwordAttackSubStamina)
+	if ((CharacterState == ECharacterState::IDLE || CharacterState == ECharacterState::WALK) && 
+		Stamina >= SwordAttackSubStamina)
 	{
 		return true;
 	}
@@ -271,10 +254,18 @@ void AChert::StopDefense()
 
 void AChert::Slide()
 {
-	CameraShakeFeedback();
-	Stamina -= SlideSubStamina;
-	CharacterState = ECharacterState::SLIDE;
-	DirectionAnims(SlideAnims);
+	if (IsCanSlide())
+	{
+		CameraShakeFeedback(false);
+		Stamina -= SlideSubStamina;
+		CharacterState = ECharacterState::SLIDE;
+		DirectionAnims(SlideAnims);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DD"));
+	}
+
 }
 
 bool AChert::IsCanSlide()
@@ -295,51 +286,49 @@ void AChert::Affected()
 {
 	if (IsCanAffected())
 	{
-		switch (WeaponType)
+		if (CharacterState == ECharacterState::DEFENSE)
 		{
-
-		case EWeaponType::MELEE:
-			MeleeAffected();
-			break;
-		case EWeaponType::SWORD:
-			SwordAffected();
-			break;
-
+			if (Stamina < DefenseSubStamina)
+			{
+				//DestroyDefense();
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DestroyDefense"));
+			}
+			else
+			{
+				CameraShakeFeedback(false);
+				RandomPlayAnims(SwordDefenseAnims);
+				Stamina -= DefenseSubStamina;
+			}
+		}
+		else
+		{
+			// CharacterState = ECharacterState::AFFECTED;
+			CameraShakeFeedback(true);
+			// RandomPlayAnims(SwordDefenseAnims);
+			int damageVal = DamageCalculation(BaseDamage, StaminaModifier, HitPointModifier);
+			if (HitPoint <= damageVal)
+			{
+				HitPoint -= damageVal;
+				HitPoint = 0;
+			}
+			else
+			{
+				HitPoint -= damageVal;
+			}
 		}
 	}
 }
 
-void AChert::MeleeAffected()
-{
-	CharacterState = ECharacterState::AFFECTED;
-
-	CameraShakeFeedback();
-	/*
-	RandomPlayAnims(MeleeInjuryAnims);
-
-	if (HitPoint <= FDamageLevel::Common)
-	{
-		HitPoint = 0;
-		Die();
-	}
-	else
-	{
-		HitPoint -= FDamageLevel::Common;
-	}
-	*/
-}
-
-void AChert::SwordAffected()
-{
-}
-
 bool AChert::IsCanAffected()
 {
-	if (!bIgnoreHit)
+	return true;
+	/*
+	if (!bIsIgnoreHit)
 	{
 		return true;
 	}
 	return false;
+	*/
 }
 
 

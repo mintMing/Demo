@@ -18,6 +18,7 @@ enum class ECharacterState : uint8
 	ROLLING,		//·­Ήφ
 	SLIDE,			//»¬ΠΠ
 	DEFENSE,		//·ΐΣω
-	AFFECTED		//Κά»χ
+	AFFECTED,		//Κά»χ
+	COMBO
 };
 

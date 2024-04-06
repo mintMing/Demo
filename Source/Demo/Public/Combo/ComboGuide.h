@@ -13,6 +13,9 @@
 /**
  * 
  */
+
+//class AChert;
+
 UCLASS(BlueprintType)
 class DEMO_API UComboGuide : public UObject, public IActionStage
 {
@@ -24,6 +27,11 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	UComboContext *ComboContext;
+
+	/*
+	UPROPERTY(BlueprintReadOnly)
+	AChert *Performer;
+	*/
 
 	UPROPERTY(BlueprintReadOnly)
 	bool SaveAttack = false;

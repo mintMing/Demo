@@ -19,7 +19,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "AICharacter/AISamurai.h"
+#include "AICharacter/Samurai.h"
 
 // Sets default values
 ACharacter_Base::ACharacter_Base()
@@ -50,7 +50,8 @@ ACharacter_Base::ACharacter_Base()
 
 	bIsRun = false;
 	bIsEquip = false;
-	bIgnoreHit = false;
+	bIsIgnoreHit = false;
+	bIsDeath = false;
 
 	LastMeleeIndex = 0;
 	LastSwordIndex = 0;
@@ -67,10 +68,15 @@ ACharacter_Base::ACharacter_Base()
 	MoveForwardVal = 0.0f;
 	MoveRightVal = 0.0f;
 
-	AICharacterTarget = nullptr;
+	//AICharacterTarget = nullptr;
 
 	MeleeSphereCollisionRadius = 35.0f;
 
+	BaseDamage = 10.0f;
+	StaminaModifier = 0.1f;
+	HitPointModifier = 0.1f;
+
+	DefenseSubStamina = 5.0f;
 
 }
 
@@ -86,7 +92,7 @@ void ACharacter_Base::BeginPlay()
 	}
 	*/
 
-	FindAICharacterPtr();
+	FindAITargetPtr();
 	
 }
 
@@ -189,95 +195,100 @@ bool ACharacter_Base::IsCanRun()
 	return false;
 }
 
-void ACharacter_Base::RandomAttackAnims(TArray<UAnimMontage *> NeedRandomAnims, int32 &LastAttackAnimsIndex)
+void ACharacter_Base::RandomAttackAnims(TArray<UAnimMontage *> RandomAnims, int32 &LastAttackAnimsIndex)
 {
 	// 随机选择近战攻击动画
-	int32 AttackAnimIndex = UKismetMathLibrary::RandomIntegerInRange(0, NeedRandomAnims.Num() - 1);
+	int32 AttackAnimIndex = UKismetMathLibrary::RandomIntegerInRange(0, RandomAnims.Num() - 1);
 
 	// 获取当前动画实例
 	UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance();
-
-	if (CurAnimIns)
+	if (!IsValid(CurAnimIns))
 	{
-		// 当前动画不等于上文动画索引时，播放动画
-		if (AttackAnimIndex != LastAttackAnimsIndex)
+		checkf(CurAnimIns, TEXT("RandomAttackAnims：CurAnimIns is not valid."))
+	}
+
+	// 当前动画不等于上文动画索引时，播放动画
+	if (AttackAnimIndex != LastAttackAnimsIndex)
+	{
+		LastAttackAnimsIndex = AttackAnimIndex;
+		CurAnimIns->Montage_Play(RandomAnims[AttackAnimIndex]);
+	}
+	else
+	{
+		if (AttackAnimIndex == 0)
 		{
-			LastAttackAnimsIndex = AttackAnimIndex;
-			CurAnimIns->Montage_Play(NeedRandomAnims[AttackAnimIndex]);
+			uint32 AddIndexNum = UKismetMathLibrary::RandomIntegerInRange(0, RandomAnims.Num() - 1);
+			AttackAnimIndex = +AddIndexNum;
+			LastAttackAnimsIndex = AddIndexNum;
+			CurAnimIns->Montage_Play(RandomAnims[AttackAnimIndex]);
 		}
 		else
 		{
-			if (AttackAnimIndex == 0)
-			{
-				uint32 AddIndexNum = UKismetMathLibrary::RandomIntegerInRange(0, NeedRandomAnims.Num() - 1);
-				AttackAnimIndex = +AddIndexNum;
-				LastAttackAnimsIndex = AddIndexNum;
-				CurAnimIns->Montage_Play(NeedRandomAnims[AttackAnimIndex]);
-			}
-			else
-			{
-				AttackAnimIndex--;
-				LastAttackAnimsIndex = AttackAnimIndex;
-				CurAnimIns->Montage_Play(NeedRandomAnims[AttackAnimIndex]);
-			}
+			AttackAnimIndex--;
+			LastAttackAnimsIndex = AttackAnimIndex;
+			CurAnimIns->Montage_Play(RandomAnims[AttackAnimIndex]);
 		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("RandomAttackAnim : CurAnimIns is nullptr"));
 	}
 }
 
-void ACharacter_Base::SequenceAttackAnims(TArray<UAnimMontage *> NeedRandomAnims)
+void ACharacter_Base::RandomPlayAnims(TArray<UAnimMontage *> RandomAnims)
 {
 	UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance();
+	if (!IsValid(CurAnimIns))
+	{
+		checkf(CurAnimIns, TEXT("RandomPlayAnims：CurAnimIns is not valid."))
+	}
 
-	if (CurAnimIns)
+	int32 RandomAnimIndex = UKismetMathLibrary::RandomIntegerInRange(0, RandomAnims.Num() - 1);
+
+	CurAnimIns->Montage_Play(RandomAnims[RandomAnimIndex]);
+}
+
+void ACharacter_Base::SequenceAttackAnims(TArray<UAnimMontage *> RandomAnims)
+{
+	UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance();
+	if (!IsValid(CurAnimIns))
 	{
-		CurAnimIns->Montage_Play(NeedRandomAnims[SequenceAttackAnimIndex]);
+		checkf(CurAnimIns, TEXT("SequenceAttackAnims：CurAnimIns is not valid."))
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SequenceAttackAnims : CurAnimIns is nullptr"));
-	}
+
+	CurAnimIns->Montage_Play(RandomAnims[SequenceAttackAnimIndex]);
 }
 
 void ACharacter_Base::DirectionAnims(TArray<UAnimMontage *> DirectionAnims)
 {
 	UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance();
-
-	if (CurAnimIns)
+	if (!IsValid(CurAnimIns))
 	{
-		if(GetVelocity().Size() < 1.0f)
-		{
-			CurAnimIns->Montage_Play(DirectionAnims[4]);
-			return;
-		}
-		else
-		{
-			if (MoveForwardVal == 1)
-			{
-				CurAnimIns->Montage_Play(DirectionAnims[0]);
-			}
-			else if (MoveForwardVal == -1)
-			{
-				CurAnimIns->Montage_Play(DirectionAnims[1]);
-			}
-			else if (MoveRightVal == 1)
-			{
-				CurAnimIns->Montage_Play(DirectionAnims[2]);
-			}
-			else if (MoveRightVal == -1)
-			{
-				CurAnimIns->Montage_Play(DirectionAnims[3]);
-			}
-			else
-			{
-				CurAnimIns->Montage_Play(DirectionAnims[0]);
-			}
-		}
-
+		checkf(CurAnimIns, TEXT("DirectionAnims：CurAnimIns is not valid."))
 	}
+
+	if(GetVelocity().Size() < 1.0f)
+	{
+		CurAnimIns->Montage_Play(DirectionAnims[4]);
+		return;
+	}
+	else if (MoveForwardVal == 1)
+	{
+			CurAnimIns->Montage_Play(DirectionAnims[0]);
+	}
+	else if (MoveForwardVal == -1)
+	{
+		CurAnimIns->Montage_Play(DirectionAnims[1]);
+	}
+	else if (MoveRightVal == 1)
+	{
+		CurAnimIns->Montage_Play(DirectionAnims[2]);
+	}
+	else if (MoveRightVal == -1)
+	{
+		CurAnimIns->Montage_Play(DirectionAnims[3]);
+	}
+	else
+	{
+		CurAnimIns->Montage_Play(DirectionAnims[0]);
+	}
+
 }
 
 void ACharacter_Base::EnableMeleeCollision()
@@ -300,20 +311,30 @@ void ACharacter_Base::EnableMeleeCollision()
 
 	for (auto CollisionTarget : OverlapActors)
 	{
-		if (AAISamurai *Target = Cast<AAISamurai>(CollisionTarget))
+		
+		ASamurai *Target = Cast<ASamurai>(CollisionTarget);
+		if (IsValid(Target))
 		{
-			//Target->Affected();
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("打到了"));
+			checkf(Target, TEXT("Character_Base：Target is not valid."));
+		}
+		if (Target)
+		{
+			Target->Affected();
 		}
 	}
 }
 
-void ACharacter_Base::FindAICharacterPtr()
+void ACharacter_Base::FindAITargetPtr()
 {
-	AICharacterTarget = Cast<AAISamurai>(UGameplayStatics::GetActorOfClass(GetWorld(), InsAICharacterTarget));
-
-	if (AICharacterTarget == nullptr)
+	
+	AITarget = Cast<ASamurai>(UGameplayStatics::GetActorOfClass(GetWorld(), InsAITarget));
+	if (IsValid(AITarget))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Character_Base：FindAICharacterPtr of AICharacterTarget is nullptr"));
+		checkf(AITarget, TEXT("Character_Base：AITarget is not valid."));
 	}
+}
+
+float ACharacter_Base::DamageCalculation(float BDamage, float SModifier, float HPModifier)
+{
+	return BaseDamage - (StaminaModifier * Stamina) - (HitPointModifier * HitPoint);
 }

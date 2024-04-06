@@ -21,7 +21,7 @@ class UStaticMeshComponent;
 class UArrowComponent;
 struct FInputActionValue;
 
-class AAISamurai;
+class ASamurai;
 
 
 UCLASS()
@@ -107,7 +107,11 @@ protected:
 
 	// 是否忽略受击
 	UPROPERTY(BlueprintReadWrite, Category = Attribute)
-	bool bIgnoreHit;
+	bool bIsIgnoreHit;
+
+	// 是否忽略受击
+	UPROPERTY(BlueprintReadWrite, Category = Attribute)
+	bool bIsDeath;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
 	EWeaponType WeaponType;
@@ -151,7 +155,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
 	float SwordRollSubStamina;
 
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
+	float DefenseSubStamina;
 
 protected:
 	void Move(const FInputActionValue &Val);
@@ -170,12 +175,15 @@ protected:
 protected:
 
 	// 随机播放攻击动画
-	void RandomAttackAnims(TArray<UAnimMontage *> NeedRandomAnims, int32 &LastAttackAnimsIndex);
+	void RandomAttackAnims(TArray<UAnimMontage *> RandomAnims, int32 &LastAttackAnimsIndex);
 	int32 LastMeleeIndex; 
 	int32 LastSwordIndex; 	
 
+	//随机播放动画
+	void RandomPlayAnims(TArray<UAnimMontage *> RandomAnims);
+
 	// 按序播放攻击动画
-	void SequenceAttackAnims(TArray<UAnimMontage *> NeedRandomAnims);
+	void SequenceAttackAnims(TArray<UAnimMontage *> RandomAnims);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	int32 SequenceAttackAnimIndex;  	// 顺序动画索引 动画蓝图迭代
@@ -209,7 +217,7 @@ protected:
 
 	// 摄像机震动反馈
 	UFUNCTION(BlueprintImplementableEvent)
-	void CameraShakeFeedback();
+	void CameraShakeFeedback(bool IsOpen);
 
 	// 角色转向插值速度
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
@@ -223,7 +231,7 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE float GetMaxStamine() const { return MaxStamina; };
 
-protected:
+public:
 
 	virtual void AttackMode() PURE_VIRTUAL(APlayer_Base::AttackMode, );
 
@@ -254,14 +262,32 @@ protected:
 
 	// AI
 public:
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AITarget")
-	AAISamurai *AICharacterTarget;
+	ASamurai *AITarget;
 
 	// 参照
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AITarget")
-	TSubclassOf<AAISamurai> InsAICharacterTarget;
+	TSubclassOf<ASamurai> InsAITarget;
+	
+	void FindAITargetPtr();
 
-	void FindAICharacterPtr();
+	// 伤害计算
+protected:
+
+	// 基本伤害值
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "DamageMechanism", meta = (ClampMin = "0.01", ClampMax = "1.0"))
+	float BaseDamage; 
+
+	// 伤害的影响程度系数
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "DamageMechanism", meta = (ClampMin = "0.01", ClampMax = "1.0"))
+	float StaminaModifier; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "DamageMechanism")
+	float HitPointModifier; 
+
+	float DamageCalculation(float BDamage, float SModifier, float HPModifier);
+
+
 
 };

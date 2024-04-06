@@ -106,6 +106,7 @@ void UComboGuide::ResetCombo()
 	ComboContext->CurrentComboAction->CurrentActionIndex = 0;
 	ComboContext->CurrentComboAction->ActionStage = EActionStages::End;
 	SaveAttack = false;
+	
 }
 
 bool UComboGuide::IsActionIsChild() const

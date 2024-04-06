@@ -10,6 +10,6 @@ UENUM(BlueprintType)
 enum class EDamageLevel : uint8
 {
 	NONE,
-	COMMON,   // ÆÕ¹¥
+	COMMON = 5,   // ÆÕ¹¥
 	BLEEDING  // ³öÑª
 };

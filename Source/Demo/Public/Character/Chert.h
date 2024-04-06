@@ -63,14 +63,18 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AnimMontage, meta = (AllowPrivateAccess = "true"))
 	TArray<UAnimMontage *> SlideAnims;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AnimMontage, meta = (AllowPrivateAccess = "true"))
+	TArray<UAnimMontage *> AffectedAnims;
+
+	// 持剑防御
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AnimMontage, meta = (AllowPrivateAccess = "true"))
+	TArray<UAnimMontage *> SwordDefenseAnims;
+
 
 	// 属性
 protected:
 
 
-
-
-	// 动作转换
 public:
 
 	AChert();
