@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
+#include "AICharacter/LockSystem.h"
+
 #include "Samurai.generated.h"
 
 
@@ -33,7 +36,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
 private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "Ture"))
@@ -41,7 +43,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "Ture"))
 	TObjectPtr<UBoxComponent> HitColl;
-
 
 protected:
 	// 拔剑动画
@@ -87,7 +88,7 @@ public:
 	bool bIsIgnoreHit;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Attribute")
-	bool bIsDie;
+	bool bIsDeath;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	float HitPoint;
@@ -121,6 +122,8 @@ public:
 
 	float SwordSphereCollisionRadius;
 
+	FVector GetTargetPosition();
+
 public:
 
 	// 受击逻辑
@@ -136,6 +139,20 @@ public:
 	void Attack();
 	bool IsCanAttack();
 
+	void Roll();
+
+	void Death();
+
+	void RushThump();
+	bool IsCanRushThump();
+	void EnableThump();
+	
+	void ThumpMovement(int32 Direction);
+	int32 ThumpDirection; 	// 重攻击方向
+
+	UFUNCTION(BlueprintCallable)
+	void RushThumpDistance(float Lerp);
+
 	// 目标
 public:
 
@@ -146,10 +163,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	TSubclassOf<ACharacter_Base> InsPawn;
 
+	// 重攻击的目标位置
+	FVector RushAttackPosition;
 
 	void FindTargetPawn();
 
-	void RunningMovement(bool IsRun);
+	void RunMovement(bool IsRun);
 
 
 public:

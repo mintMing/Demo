@@ -3,7 +3,6 @@
 
 #include "Character/Character_Base.h"
 
-
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h" // GetCharacterMovement
@@ -11,15 +10,15 @@
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "Controller/DefaultPlayerController.h"
-
 #include "Components/AudioComponent.h"
 #include "Components/ArrowComponent.h"
-
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
-
 #include "Kismet/GameplayStatics.h"
 #include "AICharacter/Samurai.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "AICharacter/SamuraiController.h"
+
 
 // Sets default values
 ACharacter_Base::ACharacter_Base()
@@ -52,6 +51,7 @@ ACharacter_Base::ACharacter_Base()
 	bIsEquip = false;
 	bIsIgnoreHit = false;
 	bIsDeath = false;
+
 
 	LastMeleeIndex = 0;
 	LastSwordIndex = 0;
@@ -133,9 +133,6 @@ void ACharacter_Base::Move(const FInputActionValue &Val)
 	MoveForwardVal = MoveVec.Y;
 	MoveRightVal = MoveVec.X;
 
-	MoveAxis = MoveVec;
-
-
 	if (PC != nullptr)
 	{
 		// 获取 Yaw ,即水平旋转角度
@@ -151,11 +148,6 @@ void ACharacter_Base::Move(const FInputActionValue &Val)
 		AddMovementInput(MoveDir, MoveVec.Y);
 		AddMovementInput(RightDirection, MoveVec.X);
 	}
-}
-
-void ACharacter_Base::MoveEnd()
-{
-	MoveAxis = FVector2D(0, 0);
 }
 
 void ACharacter_Base::Look(const FInputActionValue &Val)
@@ -291,6 +283,20 @@ void ACharacter_Base::DirectionAnims(TArray<UAnimMontage *> DirectionAnims)
 
 }
 
+void ACharacter_Base::RemovePlayerInput()
+{
+	ADefaultPlayerController *PC = Cast<ADefaultPlayerController>(Controller);
+	if (IsValidChecked(PC))
+	{
+		auto *Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
+		if (IsValidChecked(Subsystem))
+		{
+			Subsystem->RemoveMappingContext(InputMappingContext);
+		}
+	}
+
+}
+
 void ACharacter_Base::EnableMeleeCollision()
 {
 	FVector SpherePos = GetActorLocation() + (GetActorForwardVector() * 35.0f);
@@ -311,12 +317,8 @@ void ACharacter_Base::EnableMeleeCollision()
 
 	for (auto CollisionTarget : OverlapActors)
 	{
-		
 		ASamurai *Target = Cast<ASamurai>(CollisionTarget);
-		if (IsValid(Target))
-		{
-			checkf(Target, TEXT("Character_Base：Target is not valid."));
-		}
+		checkf(Target, TEXT("Character_Base：Target is not valid."));
 		if (Target)
 		{
 			Target->Affected();
@@ -324,14 +326,30 @@ void ACharacter_Base::EnableMeleeCollision()
 	}
 }
 
+void ACharacter_Base::Die()
+{
+	bIsDeath = true;
+	AITarget->AIController->GetBlackboardComponent()->SetValueAsBool("IsAnyoneDeath", true);
+
+	RemovePlayerInput();
+	// 关闭胶囊体的碰撞
+	if (GetCapsuleComponent())
+	{
+		GetMesh()->SetCollisionObjectType(ECC_PhysicsBody);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMesh()->SetCollisionResponseToAllChannels(ECR_Block);
+		GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+		// pelvis 以下启用角色的物理模拟
+		GetMesh()->SetAllBodiesBelowSimulatePhysics("pelvis", true);
+	}
+}
+
 void ACharacter_Base::FindAITargetPtr()
 {
 	
 	AITarget = Cast<ASamurai>(UGameplayStatics::GetActorOfClass(GetWorld(), InsAITarget));
-	if (IsValid(AITarget))
-	{
-		checkf(AITarget, TEXT("Character_Base：AITarget is not valid."));
-	}
+	checkf(AITarget, TEXT("Character_Base：AITarget is not valid."));
 }
 
 float ACharacter_Base::DamageCalculation(float BDamage, float SModifier, float HPModifier)

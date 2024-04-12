@@ -10,38 +10,30 @@
 
 void UCalculateDistanceFromPawn::TickNode(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory, float DeltaSeconds)
 {
-
-
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
-
 	
 	ASamuraiController *AIController = Cast<ASamuraiController>(OwnerComp.GetAIOwner());
-	if (!IsValid(AIController))
-	{
-		UE_LOG(LogTemp, Error, TEXT("UCalculateDistanceFromPawn: AIController is nullptr."));
-	}
+	check(AIController);
 
 	ASamurai *AISamurai = Cast<ASamurai>(AIController->GetPawn());
-	if (!IsValid(AISamurai))
-	{
-		UE_LOG(LogTemp, Error, TEXT("UCalculateDistanceFromPawn: AISamurai is nullptr."));
-	}
+	check(AISamurai);
 
 	ACharacter_Base *PlayerPawn = Cast<ACharacter_Base>(AISamurai->TargetPawn);
-	if (!IsValid(PlayerPawn))
-	{
-		UE_LOG(LogTemp, Error, TEXT("UCalculateDistanceFromPawn: PlayerPawn is nullptr."));
-	}
+	check(PlayerPawn);
 
-	float Distance = PlayerPawn->GetDistanceTo(PlayerPawn);
+	float Distance = AISamurai->GetDistanceTo(PlayerPawn);
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Distance : %f"), Distance));
 	if (Distance < 250.0f)
 	{
 		AIController->GetBlackboardComponent()->SetValueAsBool("IsAttack", true);
 	}
-	else if (Distance > 250.0f)
+	else
 	{
-		AIController->GetBlackboardComponent()->SetValueAsBool("IsRun", true);
+		if (Distance > 1000.0f)
+		{
+			AIController->GetBlackboardComponent()->SetValueAsBool("IsRun", true);
+		}
+		AIController->GetBlackboardComponent()->SetValueAsBool("IsAttack", false);
 	}
-	AIController->GetBlackboardComponent()->SetValueAsBool("IsAttack", true);
-	
 }

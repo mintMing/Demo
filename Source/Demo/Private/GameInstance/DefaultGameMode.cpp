@@ -5,6 +5,7 @@
 
 #include "Character/Chert.h"
 #include "Controller/DefaultPlayerController.h"
+#include "UI/InGame/DefaultHUD.h"
 
 ADefaultGameMode::ADefaultGameMode()
 {
@@ -28,4 +29,6 @@ ADefaultGameMode::ADefaultGameMode()
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PlayerControllerBPClass is null"));
 	}
+
+	HUDClass = ADefaultHUD::StaticClass();
 }

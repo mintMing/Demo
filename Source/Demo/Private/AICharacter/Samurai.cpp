@@ -13,6 +13,10 @@
 #include "random"
 #include "Enum/DamageLevel.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/ArrowComponent.h"
+
 
 // Sets default values
 ASamurai::ASamurai()
@@ -39,7 +43,7 @@ ASamurai::ASamurai()
 	bIsAffected = false;
 	bIsRun = false;
 	bIsIgnoreHit = false;
-	bIsDie = false;
+	bIsDeath = false;
 
 	DamageLevel = EDamageLevel::COMMON;
 
@@ -49,27 +53,31 @@ ASamurai::ASamurai()
 
 	SwordSphereCollisionRadius = 70.0f;
 
+	RushAttackPosition = FVector(0, 0, 0);
+	ThumpDirection = 1;
+
 }
 
 // Called when the game starts or when spawned
 void ASamurai::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// 关闭tick
+	SetActorTickEnabled(false);
 	
 	AIController = Cast<ASamuraiController>(GetController());
-	if (IsValid(AIController))
-	{
-		checkf(AIController, TEXT("Samurai：AIController is not valid."));
-	}
+	checkf(AIController, TEXT("Samurai：AIController is not valid."));
 
 	FindTargetPawn();
-
 }
 
 // Called every frame
 void ASamurai::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	ThumpMovement(ThumpDirection);
 
 }
 
@@ -85,7 +93,9 @@ void ASamurai::RandomPlayMontage(TArray<UAnimMontage *> Animaitons)
 {
 	int32 AttackAnimaIndex = UKismetMathLibrary::RandomIntegerInRange(0, Animaitons.Num() - 1);
 
-	if (UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance())
+	UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance();
+	
+	if (IsValidChecked(CurAnimIns))
 	{
 		if (AttackAnimaIndex != LastAttackAnimsIndex)
 		{
@@ -137,16 +147,18 @@ void ASamurai::EnableAttackCollision()
 	for (auto CollisionTarget : OverlapActors)
 	{
 		ACharacter_Base *Target = Cast<ACharacter_Base>(CollisionTarget);
-		if (IsValid(Target))
-		{
-			checkf(Target, TEXT("Samurai：Target is not valid."));
-		}
+		checkf(Target, TEXT("Samurai：Target is not valid."));
 
 		if (Target)
 		{
 			Target->Affected();
 		}
 	}
+}
+
+FVector ASamurai::GetTargetPosition()
+{
+	return TargetPawn->DirectionArrow->GetComponentLocation();
 }
 
 void ASamurai::AccumulatedHit()
@@ -207,7 +219,7 @@ void ASamurai::Affected()
 			HitPoint -= 5;
 			PlayAffectedSound();
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("NPC Die"));
-			// Die();
+			// Death();
 		}
 		else
 		{
@@ -230,8 +242,20 @@ void ASamurai::Attack()
 {
 	if (IsCanAttack())
 	{
-		bIsAttack = true;
-		RandomPlayMontage(AttackAnims);
+		bool RandomAttackBool = UKismetMathLibrary::RandomBoolWithWeight(0.9);
+
+		if (RandomAttackBool)
+		{
+			bIsAttack = true;
+			AIController->GetBlackboardComponent()->SetValueAsBool("IsRun", false);
+			RunMovement(false);
+			RandomPlayMontage(AttackAnims);
+		}
+		else
+		{
+			Roll();
+		}
+
 	}
 }
 
@@ -240,42 +264,144 @@ bool ASamurai::IsCanAttack()
 	return bIsEquip && !bIsAttack && !bIsAffected && !bIsRoll;
 }
 
+void ASamurai::Roll()
+{
+	UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance();
+
+	if (IsValidChecked(CurAnimIns))
+	{
+		bIsAttack = false;
+		bIsAffected = false;
+		bIsIgnoreHit = true;
+		bIsRoll = true; 
+		int32 RollIndex = UKismetMathLibrary::RandomIntegerInRange(0, 3);
+		CurAnimIns->Montage_Play(RollingAnims[RollIndex]);
+	}
+}
+
+void ASamurai::Death()
+{
+	bIsDeath = true;
+	AIController->GetBlackboardComponent()->SetValueAsBool("IsAnyoneDie", true);
+
+	//关闭胶囊体的碰撞
+	if (GetCapsuleComponent())
+	{
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+		
+	if (GetMesh())
+	{
+		GetMesh()->SetCollisionObjectType(ECC_PhysicsBody);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		GetMesh()->SetCollisionResponseToAllChannels(ECR_Block);
+		GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+		GetMesh()->SetAllBodiesBelowSimulatePhysics("pelvis", true);
+	}
+}
+
+void ASamurai::RushThump()
+{
+	if (IsCanRushThump())
+	{
+		if (UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance())
+		{
+			bIsAttack = true;
+
+			AIController->GetBlackboardComponent()->SetValueAsBool("IsRun", false);
+
+			RushAttackPosition = GetTargetPosition();
+
+			RunMovement(false);
+
+			CurAnimIns->Montage_Play(RushAttackAnim[0]);
+		}
+	}
+}
+
+bool ASamurai::IsCanRushThump()
+{
+	return bIsEquip;
+}
+
+void ASamurai::EnableThump()
+{
+	if (bIsEquip)
+	{
+		AIController->GetBlackboardComponent()->SetValueAsBool("IsThump", true);
+
+		RunMovement(false);
+
+		if (UKismetMathLibrary::RandomBool())
+		{
+			ThumpDirection = 1;
+		}
+		else
+		{
+			ThumpDirection = -1;
+		}
+	}
+}
+
+void ASamurai::ThumpMovement(int32 Direction)
+{
+	const FRotator LocalRotation = GetActorRotation();
+
+	// 由 FRotator 创建一个旋转矩阵，将局部空间转换为世界空间，从旋转矩阵中获取单位 Y 轴向量。
+	const FVector LocalVector = FRotationMatrix(FRotator(0, LocalRotation.Yaw, 0)).GetUnitAxis(EAxis::Y);
+	AddMovementInput(LocalVector, Direction);
+}
+
+void ASamurai::RushThumpDistance(float Lerp)
+{
+	FVector LerpLoc = UKismetMathLibrary::VLerp(GetActorLocation(), RushAttackPosition, Lerp);
+	SetActorLocation(FVector(LerpLoc.X, LerpLoc.Y, GetActorLocation().Z));
+}
+
 void ASamurai::FindTargetPawn()
 {
 	while (TargetPawn == nullptr)
 	{
 		AActor *FindActor = UGameplayStatics::GetActorOfClass(GetWorld(), InsPawn);
-		if (FindActor)
+		if (IsValidChecked(FindActor))
 		{
 			TargetPawn = Cast<ACharacter_Base>(FindActor);
-			if (IsValid(TargetPawn))
-			{
-				checkf(TargetPawn, TEXT("Samurai：TargetPawn is not valid."));
-			}
+			
 		}
 	}
-	if (TargetPawn)
-	{
-		AIController->GetBlackboardComponent()->SetValueAsObject("TarPawn", TargetPawn);
-	}
+	checkf(TargetPawn, TEXT("Samurai：TargetPawn is not valid."));
+	AIController->GetBlackboardComponent()->SetValueAsObject("TarPawn", TargetPawn);
 }
 
-void ASamurai::RunningMovement(bool IsRun)
+void ASamurai::RunMovement(bool IsRun)
 {
-
+	if (IsRun)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	}
 }
 
 void ASamurai::DrawTheSword()
 {
-	bIsEquip = true;
-	UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance();
-	if (CurAnimIns)
+	if (!bIsEquip)
 	{
-		CurAnimIns->Montage_Play(EquipAnim[0]);
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "WEAPON_R");
-		if (AIController)
+		bIsEquip = true;
+		UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance();
+
+		if (CurAnimIns)
 		{
-			AIController->GetBlackboardComponent()->SetValueAsBool("IsEquip", bIsEquip);
+			CurAnimIns->Montage_Play(EquipAnim[0]);
+			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "WEAPON_R");
+			if (AIController)
+			{
+				AIController->GetBlackboardComponent()->SetValueAsBool("IsEquip", bIsEquip);
+			}
 		}
 	}
+
 }

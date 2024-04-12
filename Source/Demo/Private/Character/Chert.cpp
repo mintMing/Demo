@@ -3,15 +3,19 @@
 
 #include "Character/Chert.h"
 
-#include "GroomComponent.h"
-#include "NiagaraComponent.h"
-#include "EnhancedInputSubsystems.h"
-#include "EnhancedInputComponent.h"
-#include "GameFramework/PlayerController.h"
-#include "Controller/DefaultPlayerController.h"
-#include "GameFramework/CharacterMovementComponent.h" // GetCharacterMovement
-#include "MotionWarpingComponent.h"
 #include "Combo/ComboGuide.h"
+#include "Controller/DefaultPlayerController.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "GameFramework/CharacterMovementComponent.h" // GetCharacterMovement
+#include "GameFramework/PlayerController.h"
+#include "GroomComponent.h"
+#include "MotionWarpingComponent.h"
+#include "NiagaraComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "AICharacter/LockSystem.h"
+#include "Kismet\KismetMathLibrary.h"
+
 
 AChert::AChert()
 {
@@ -79,7 +83,6 @@ void AChert::SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
 		if (IA_Move)
 		{
 			EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &AChert::Move);
-			EnhancedInputComponent->BindAction(IA_Move, ETriggerEvent::Completed, this, &AChert::MoveEnd);
 		}
 		if (IA_Look)
 		{
@@ -114,6 +117,10 @@ void AChert::SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
 		{
 			//EnhancedInputComponent->BindAction(IA_GameSet, ETriggerEvent::Started, this, &AChert::OpenGameSet);
 		}
+		if (IA_LockPawn)
+		{
+			EnhancedInputComponent->BindAction(IA_GameSet, ETriggerEvent::Started, this, &AChert::LockAI);
+		}
 		
 	}
 }
@@ -126,6 +133,28 @@ void AChert::Tick(float DeltaTime)
 	{
 		Stamina += DeltaTime * StaminaRecoveryCoefficient;
 	}
+
+	if (IsLock)
+	{
+		FVector TargetLocation = TargetActor->GetActorLocation();
+		TargetLocation.Z -= 50.0f; // 向下移动 50 个单位
+
+		FRotator Rot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLocation);
+
+		FRotator Rot01 = FMath::RInterpTo(GetControlRotation(), Rot, DeltaTime, 4.0f);
+
+		GetController()->SetControlRotation(FRotator(Rot.Roll, Rot01.Yaw, Rot01.Pitch));
+		
+		//GetCharacterMovement()->bOrientRotationToMovement = false;
+		//GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	}
+	/*
+	else
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
+	*/
 }
 
 void AChert::AttackMode()
@@ -290,8 +319,7 @@ void AChert::Affected()
 		{
 			if (Stamina < DefenseSubStamina)
 			{
-				//DestroyDefense();
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DestroyDefense"));
+				DestroyDefense();
 			}
 			else
 			{
@@ -329,6 +357,85 @@ bool AChert::IsCanAffected()
 	}
 	return false;
 	*/
+}
+
+void AChert::DestroyDefense()
+{
+	CharacterState = ECharacterState::AFFECTED;
+
+	CameraShakeFeedback(true);
+
+	if (UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance())
+	{
+		CurAnimIns->Montage_Play(DestroyDefenseAnims[0]);
+	}
+	Stamina -= DefenseSubStamina;
+	if (Stamina < 0)
+	{
+		Stamina = 0;
+	}
+}
+
+void AChert::GetClosestAI(float Radius, AActor *&Target, bool &CollisionAnyItem)
+{
+	/*
+	LockActors.Empty();
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectType;
+	ObjectType.Add(EObjectTypeQuery::ObjectTypeQuery3);
+
+	TArray<AActor *> IgnoreActors;
+	IgnoreActors.Add(this);
+
+	TArray<FHitResult> OutHits;
+
+	CollisionAnyItem = UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), GetActorLocation(), GetActorLocation(),
+		Radius, ObjectType, false, IgnoreActors, EDrawDebugTrace::ForDuration,
+		OutHits, true);
+
+	for (const FHitResult& Elem : OutHits)
+	{
+		AActor *HitActor = Elem.GetActor();
+		if (HitActor->GetClass()->ImplementsInterface(ULockSystem::StaticClass()))
+		{
+			LockActors.Add(HitActor);
+		}
+	}
+
+	if (LockActors.Num() > 0)
+	{
+		Target = LockActors[0];
+		DistanceofPlayerAndAI = FMath::Abs(Target->GetDistanceTo(this));
+	}
+
+	for (const AActor *Elem : LockActors)
+	{
+		if (Elem->GetDistanceTo(this) < DistanceofPlayerAndAI)
+		{
+			Elem = Target;
+		}
+	}
+	*/
+}
+
+void AChert::LockAI()
+{
+	if (IsLock)
+	{
+		IsLock = false;
+	}
+	else
+	{
+		GetClosestAI(500, TargetActor, IsCollisionAnyItem);
+		if (IsCollisionAnyItem)
+		{
+			IsLock = true;
+		}
+		else
+		{
+			IsLock = false;
+		}
+	}
 }
 
 

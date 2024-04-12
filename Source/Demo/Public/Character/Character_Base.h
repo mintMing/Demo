@@ -52,9 +52,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Component", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> CameraBoom;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UArrowComponent> DirectionArrow;
-
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> InputMappingContext;
@@ -90,6 +87,9 @@ protected:
 	TObjectPtr<UInputAction> IA_TurnBack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Action")
+	TObjectPtr<UInputAction> IA_LockPawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Action")
 	TObjectPtr<UInputAction> IA_GameSet;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|Action")
@@ -109,7 +109,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = Attribute)
 	bool bIsIgnoreHit;
 
-	// 是否忽略受击
 	UPROPERTY(BlueprintReadWrite, Category = Attribute)
 	bool bIsDeath;
 
@@ -161,9 +160,6 @@ protected:
 protected:
 	void Move(const FInputActionValue &Val);
 
-	void MoveEnd();
-
-
 	void Look(const FInputActionValue &Val);
 
 	void StartRunning();
@@ -203,13 +199,8 @@ protected:
 	FVector ForwardVec;
 	FVector RightVec;
 
-	// --------------
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "RootMotion")
-	FVector2D MoveAxis;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "RootMotion")
 	float DeltaRotator = 5.f;
-	
 
 	// 体力不足提示
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
@@ -230,6 +221,9 @@ protected:
 	// 获取当前最大体力值
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE float GetMaxStamine() const { return MaxStamina; };
+
+	// 移除控制输入
+	void RemovePlayerInput();
 
 public:
 
@@ -260,6 +254,9 @@ public:
 	// 受击
 	virtual void Affected() PURE_VIRTUAL(APlayer_Base::Affected,);
 
+	//死亡
+	void Die();
+
 	// AI
 public:
 	
@@ -271,6 +268,9 @@ public:
 	TSubclassOf<ASamurai> InsAITarget;
 	
 	void FindAITargetPtr();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UArrowComponent> DirectionArrow;
 
 	// 伤害计算
 protected:

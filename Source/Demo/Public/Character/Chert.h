@@ -70,6 +70,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AnimMontage, meta = (AllowPrivateAccess = "true"))
 	TArray<UAnimMontage *> SwordDefenseAnims;
 
+	// ∆∆∑¿
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AnimMontage, meta = (AllowPrivateAccess = "true"))
+	TArray<UAnimMontage *> DestroyDefenseAnims;
 
 	//  Ù–‘
 protected:
@@ -107,6 +110,24 @@ public:
 	void MeleeAffected();
 	void SwordAffected();
 	bool IsCanAffected();
+
+	void DestroyDefense();
+
+	/** Please add a function description */
+	UFUNCTION(BlueprintCallable)
+	void GetClosestAI(float Radius, AActor *&TargetActor, bool &IsCollisionAnyItem);
+
+	TArray<AActor *> LockActors;
+
+	AActor *TargetActor;
+
+	float DistanceofPlayerAndAI;
+
+	bool IsCollisionAnyItem;
+
+	bool IsLock;
+
+	void LockAI();
 
 
 	// ¡¨’–
