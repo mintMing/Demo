@@ -7,16 +7,14 @@
 #include "ActionStage.generated.h"
 
 
-
-
-
 UENUM(BlueprintType)
 enum EComboActions : uint8
 {
 	Combo_1,
 	Combo_1_1,
 	Combo_1_2,
-	Combo_1_3
+	Combo_1_3,
+	Combo_1_4
 };
 
 UENUM(BlueprintType)

@@ -10,13 +10,9 @@
 ADefaultGameMode::ADefaultGameMode()
 {
 	static ConstructorHelpers::FClassFinder<AChert> PlayerBPClass(TEXT("/Game/Blueprints/Character/BP_Chert"));
-	if (PlayerBPClass.Class != nullptr)
+	if (PlayerBPClass.Class)
 	{
 		DefaultPawnClass = PlayerBPClass.Class;
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PlayerBPClass is null"));
 	}
 
 	// 设置默认的玩家控制器类
@@ -25,10 +21,12 @@ ADefaultGameMode::ADefaultGameMode()
 	{
 		PlayerControllerClass = PlayerControllerBPClass.Class;
 	}
-	else
+
+	static ConstructorHelpers::FClassFinder<ADefaultHUD> DefaultHUDClass(TEXT("/Game/Blueprints/UI/InGame/BP_InGame"));
+	if (DefaultHUDClass.Class)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PlayerControllerBPClass is null"));
+		HUDClass = DefaultHUDClass.Class;
 	}
 
-	HUDClass = ADefaultHUD::StaticClass();
+
 }

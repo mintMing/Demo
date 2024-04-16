@@ -10,6 +10,7 @@
  * 
  */
 class UCharacterStateHUD;
+class AChert;
 
 UCLASS()
 class DEMO_API ADefaultHUD : public AHUD
@@ -20,8 +21,10 @@ class DEMO_API ADefaultHUD : public AHUD
 
 	virtual void BeginPlay() override;
 
-	TSubclassOf<UCharacterStateHUD> CharacterStateHUDClass;
+	TSubclassOf<UCharacterStateHUD> CharacterStateHUDRefence;
 
 	UCharacterStateHUD *CharacterStateHUD;
+
+	AChert *ChertRefence;
 	
 };

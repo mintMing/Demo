@@ -147,11 +147,15 @@ public:
 	bool IsCanRushThump();
 	void EnableThump();
 	
+	// 重攻击方向
 	void ThumpMovement(int32 Direction);
-	int32 ThumpDirection; 	// 重攻击方向
+	int32 ThumpDirection; 	
 
 	UFUNCTION(BlueprintCallable)
 	void RushThumpDistance(float Lerp);
+
+	FTimerHandle DelayRandomThumb;
+	FTimerHandle DelayFindPlayerPtr;
 
 	// 目标
 public:

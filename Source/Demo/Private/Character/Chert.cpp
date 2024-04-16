@@ -129,7 +129,7 @@ void AChert::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (Stamina < 100.f && (CharacterState == ECharacterState::WALK || CharacterState != ECharacterState::IDLE))
+	if (Stamina < 100.f && (CharacterState == ECharacterState::WALK || CharacterState == ECharacterState::IDLE))
 	{
 		Stamina += DeltaTime * StaminaRecoveryCoefficient;
 	}
@@ -144,6 +144,8 @@ void AChert::Tick(float DeltaTime)
 		FRotator Rot01 = FMath::RInterpTo(GetControlRotation(), Rot, DeltaTime, 4.0f);
 
 		GetController()->SetControlRotation(FRotator(Rot.Roll, Rot01.Yaw, Rot01.Pitch));
+
+
 		
 		//GetCharacterMovement()->bOrientRotationToMovement = false;
 		//GetCharacterMovement()->bUseControllerDesiredRotation = true;
@@ -330,9 +332,7 @@ void AChert::Affected()
 		}
 		else
 		{
-			// CharacterState = ECharacterState::AFFECTED;
 			CameraShakeFeedback(true);
-			// RandomPlayAnims(SwordDefenseAnims);
 			int damageVal = DamageCalculation(BaseDamage, StaminaModifier, HitPointModifier);
 			if (HitPoint <= damageVal)
 			{

@@ -12,8 +12,7 @@ EBTNodeResult::Type UChase::ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8
 	if (IsValidChecked(AIController))
 	{
 		ASamurai *AICharacter = Cast<ASamurai>(AIController->GetPawn());
-
-		if (IsValidChecked(AICharacter))
+		if (AICharacter)
 		{
 			AICharacter->RunMovement(true);
 			return EBTNodeResult::Succeeded;

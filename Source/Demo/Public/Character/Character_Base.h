@@ -112,12 +112,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = Attribute)
 	bool bIsDeath;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
-	EWeaponType WeaponType;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
-	ECharacterState CharacterState;
-
 	//ÉúÃüÖµ
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
 	float HitPoint;
@@ -156,6 +150,14 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
 	float DefenseSubStamina;
+
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
+	EWeaponType WeaponType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attribute")
+	ECharacterState CharacterState;
 
 protected:
 	void Move(const FInputActionValue &Val);

@@ -14,7 +14,8 @@
  * 
  */
 
-//class AChert;
+
+class ACharacter_Base;
 
 UCLASS(BlueprintType)
 class DEMO_API UComboGuide : public UObject, public IActionStage
@@ -28,16 +29,16 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UComboContext *ComboContext;
 
-	/*
 	UPROPERTY(BlueprintReadOnly)
-	AChert *Performer;
-	*/
-
+	ACharacter_Base *Performer;
+	
 	UPROPERTY(BlueprintReadOnly)
 	bool SaveAttack = false;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool ResetRootAction = false;
+
+public:
 
 	virtual void Pre() override;
 

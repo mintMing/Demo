@@ -2,10 +2,13 @@
 
 
 #include "Combo/ComboGuide.h"
+#include "Enum/CharacterState.h"
 
 UComboGuide::UComboGuide()
 {
 	ComboContext = CreateDefaultSubobject<UComboContext>(TEXT("ComboContext"));
+
+
 }
 
 void UComboGuide::Pre()

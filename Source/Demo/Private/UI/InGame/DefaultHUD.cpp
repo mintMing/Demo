@@ -8,9 +8,14 @@
 
 ADefaultHUD::ADefaultHUD()
 {
+	/*
+	static ConstructorHelpers::FClassFinder<UCharacterStateHUD> CharacterStateUIClass(TEXT("/Game/Blueprints/UI/InGame/BP_CharacterStateHUD"));
 
+	CharacterStateHUDRefence = CharacterStateUIClass.Class;
+	*/
 }
 
 void ADefaultHUD::BeginPlay()
 {
+	Super::BeginPlay();
 }

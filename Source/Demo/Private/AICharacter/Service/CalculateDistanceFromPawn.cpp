@@ -16,7 +16,7 @@ void UCalculateDistanceFromPawn::TickNode(UBehaviorTreeComponent &OwnerComp, uin
 	check(AIController);
 
 	ASamurai *AISamurai = Cast<ASamurai>(AIController->GetPawn());
-	check(AISamurai);
+	check(AISamurai); 
 
 	ACharacter_Base *PlayerPawn = Cast<ACharacter_Base>(AISamurai->TargetPawn);
 	check(PlayerPawn);

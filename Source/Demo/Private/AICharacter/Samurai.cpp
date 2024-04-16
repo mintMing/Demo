@@ -67,9 +67,11 @@ void ASamurai::BeginPlay()
 	SetActorTickEnabled(false);
 	
 	AIController = Cast<ASamuraiController>(GetController());
-	checkf(AIController, TEXT("Samurai£ºAIController is not valid."));
+	check(AIController);
 
-	FindTargetPawn();
+	GetWorld()->GetTimerManager().SetTimer(DelayFindPlayerPtr, this, &ASamurai::FindTargetPawn, 1.0f, false, 1.0f);
+	GetWorld()->GetTimerManager().SetTimer(DelayRandomThumb, this, &ASamurai::EnableThump,
+		UKismetMathLibrary::RandomFloatInRange(13.f, 19.f), true, UKismetMathLibrary::RandomFloatInRange(13.f, 19.f));
 }
 
 // Called every frame
@@ -78,14 +80,12 @@ void ASamurai::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	ThumpMovement(ThumpDirection);
-
 }
 
 // Called to bind functionality to input
 void ASamurai::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 
@@ -207,7 +207,6 @@ void ASamurai::ApplyBleedingDamage()
 
 void ASamurai::Affected()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("NPC"));
 	if (IsCanAffected())
 	{
 		DamageLevel = EDamageLevel::COMMON;
@@ -308,13 +307,9 @@ void ASamurai::RushThump()
 		if (UAnimInstance *CurAnimIns = GetMesh()->GetAnimInstance())
 		{
 			bIsAttack = true;
-
 			AIController->GetBlackboardComponent()->SetValueAsBool("IsRun", false);
-
 			RushAttackPosition = GetTargetPosition();
-
 			RunMovement(false);
-
 			CurAnimIns->Montage_Play(RushAttackAnim[0]);
 		}
 	}

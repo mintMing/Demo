@@ -11,11 +11,11 @@
 EBTNodeResult::Type UThump::ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory)
 {
 	AIController = Cast<ASamuraiController>(OwnerComp.GetAIOwner());
-	if (IsValidChecked(AIController))
+	if (AIController)
 	{
 		AICharacter = Cast<ASamurai>(AIController->GetPawn());
 
-		if (IsValidChecked(AICharacter))
+		if (AICharacter)
 		{
 			if (!AIController->GetBlackboardComponent()->GetValueAsBool("ThumpDoOnce"))
 			{
