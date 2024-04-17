@@ -14,9 +14,6 @@
  * 
  */
 
-
-class ACharacter_Base;
-
 UCLASS(BlueprintType)
 class DEMO_API UComboGuide : public UObject, public IActionStage
 {
@@ -28,15 +25,12 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	UComboContext *ComboContext;
-
-	UPROPERTY(BlueprintReadOnly)
-	ACharacter_Base *Performer;
 	
 	UPROPERTY(BlueprintReadOnly)
-	bool SaveAttack = false;
+	bool SaveAttack;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool ResetRootAction = false;
+	bool ResetRootAction;
 
 public:
 

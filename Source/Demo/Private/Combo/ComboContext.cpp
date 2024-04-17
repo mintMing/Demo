@@ -44,7 +44,8 @@ UComboContext::UComboContext()
 
 UComboNode *UComboContext::FindRootCombo(const EComboActions RootAction)
 {
-	if (UComboNode **Combo = ComboMapping.Find(RootAction))
+	UComboNode **Combo = ComboMapping.Find(RootAction);
+	if (Combo)
 	{
 		return *Combo;
 	}

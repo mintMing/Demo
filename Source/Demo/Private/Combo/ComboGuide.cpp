@@ -6,8 +6,10 @@
 
 UComboGuide::UComboGuide()
 {
-	ComboContext = CreateDefaultSubobject<UComboContext>(TEXT("ComboContext"));
+	SaveAttack = false;
+	ResetRootAction = false;
 
+	ComboContext = CreateDefaultSubobject<UComboContext>(TEXT("ComboContext"));
 
 }
 
@@ -22,11 +24,13 @@ void UComboGuide::Pre()
 	{
 		if (IsActionIsChild())
 		{
+			// 执行后子节点应重置，从头开始
 			if (ComboContext->CurrentComboAction->ActionStage == EActionStages::Attack)
 			{
 				ResetRootAction = true;
 				return;
 			}
+			// 定位到下一个父节点
 			if (ComboContext->CurrentComboAction->ActionStage == EActionStages::Derive)
 			{
 				RootToggleToChild();
@@ -34,7 +38,8 @@ void UComboGuide::Pre()
 		}
 		ComboContext->CurrentComboAction->CurrentActionIndex = 0;
 	}
-
+	
+	// 开启缓冲
 	if (ComboContext->CurrentComboAction->ActionStage == EActionStages::Attack)
 	{
 		SaveAttack = true;
@@ -43,6 +48,7 @@ void UComboGuide::Pre()
 
 	if (ComboContext->CurrentComboAction->ActionStage == EActionStages::Gap)
 	{
+		// 找到当前动作节点的子节点
 		if (UComboNode **ChildAction = ComboContext->CurrentComboAction->ChildComboMapping.Find(ComboContext->CurrentComboAction->CurrentActionIndex))
 		{
 			UComboNode *Node = *ChildAction;
@@ -65,13 +71,13 @@ void UComboGuide::Attack()
 void UComboGuide::Derive()
 {
 	ComboContext->CurrentComboAction->ActionStage = EActionStages::Derive;
-
 	if (ResetRootAction)
 	{
 		RootToggleToChild();
 		ComboContext->CurrentComboAction->CurrentActionIndex = 0;
 		ResetRootAction = false;
 	}
+	// 缓冲已经开启，自动执行一次
 	if (SaveAttack)
 	{
 		Pre();
@@ -121,7 +127,8 @@ void UComboGuide::RootToggleToChild() const
 {
 	if (IsActionIsChild())
 	{
-		if (UComboNode *FindRootCombo = ComboContext->FindRootCombo(ComboContext->CurrentComboAction->RootAction))
+		UComboNode *FindRootCombo = ComboContext->FindRootCombo(ComboContext->CurrentComboAction->RootAction);
+		if (FindRootCombo)
 		{
 			ComboContext->CurrentComboAction = FindRootCombo;
 		}
