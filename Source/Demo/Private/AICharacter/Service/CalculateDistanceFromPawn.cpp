@@ -24,7 +24,7 @@ void UCalculateDistanceFromPawn::TickNode(UBehaviorTreeComponent &OwnerComp, uin
 	float Distance = AISamurai->GetDistanceTo(PlayerPawn);
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Distance : %f"), Distance));
-	if (Distance < 250.0f)
+	if (Distance < 200.0f)
 	{
 		AIController->GetBlackboardComponent()->SetValueAsBool("IsAttack", true);
 	}

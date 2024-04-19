@@ -107,13 +107,12 @@ public:
 	// Κά»χ
 	virtual void Affected() override;
 
-	void MeleeAffected();
-	void SwordAffected();
+	//void MeleeAffected();
+	//void SwordAffected();
 	bool IsCanAffected();
 
 	void DestroyDefense();
 
-	/** Please add a function description */
 	UFUNCTION(BlueprintCallable)
 	void GetClosestAI(float Radius, AActor *&TargetActor, bool &IsCollisionAnyItem);
 

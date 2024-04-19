@@ -102,7 +102,6 @@ public:
 	// 功能
 public:
 
-	
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FORCEINLINE float GetAICharacterHP() { return HitPoint; };
 
@@ -132,6 +131,8 @@ public:
 	int32 AttackedCount;
 	void ResetAttackCount();	// 重置被攻击次数
 	void ApplyBleedingDamage(); // 应用出血效果伤害
+
+	UFUNCTION(BlueprintCallable)
 	void Affected();
 	bool IsCanAffected();
 
@@ -142,6 +143,8 @@ public:
 	void Roll();
 
 	void Death();
+	// 死亡UI事件
+	void DeathUI();
 
 	void RushThump();
 	bool IsCanRushThump();

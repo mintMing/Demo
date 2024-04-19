@@ -42,8 +42,6 @@ AChert::AChert()
 
 	ComboGuide = CreateDefaultSubobject<UComboGuide>(TEXT("ComboGuide"));
 
-	//bIsUseDynamicCamera = true;
-
 }
 
 void AChert::BeginPlay()
@@ -61,14 +59,7 @@ void AChert::BeginPlay()
 		{
 			Subsystem->AddMappingContext(InputMappingContext, 0);
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("UEnhancedInputComponent Subsystem is null"));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ADefaultPlayerController is null"));
+
 	}
 }
 
@@ -112,16 +103,10 @@ void AChert::SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
 			EnhancedInputComponent->BindAction(IA_Defense, ETriggerEvent::Triggered, this, &AChert::SwordDefense);
 			EnhancedInputComponent->BindAction(IA_Defense, ETriggerEvent::Completed, this, &AChert::StopDefense);
 		}
-		
-		if (IA_GameSet)
-		{
-			//EnhancedInputComponent->BindAction(IA_GameSet, ETriggerEvent::Started, this, &AChert::OpenGameSet);
-		}
 		if (IA_LockPawn)
 		{
 			EnhancedInputComponent->BindAction(IA_GameSet, ETriggerEvent::Started, this, &AChert::LockAI);
 		}
-		
 	}
 }
 
@@ -144,19 +129,7 @@ void AChert::Tick(float DeltaTime)
 		FRotator Rot01 = FMath::RInterpTo(GetControlRotation(), Rot, DeltaTime, 4.0f);
 
 		GetController()->SetControlRotation(FRotator(Rot.Roll, Rot01.Yaw, Rot01.Pitch));
-
-
-		
-		//GetCharacterMovement()->bOrientRotationToMovement = false;
-		//GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	}
-	/*
-	else
-	{
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-		GetCharacterMovement()->bUseControllerDesiredRotation = false;
-	}
-	*/
 }
 
 void AChert::AttackMode()
@@ -292,11 +265,6 @@ void AChert::Slide()
 		CharacterState = ECharacterState::SLIDE;
 		DirectionAnims(SlideAnims);
 	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DD"));
-	}
-
 }
 
 bool AChert::IsCanSlide()
@@ -333,16 +301,22 @@ void AChert::Affected()
 		else
 		{
 			CameraShakeFeedback(true);
-			int damageVal = DamageCalculation(BaseDamage, StaminaModifier, HitPointModifier);
-			if (HitPoint <= damageVal)
+			
+			if (HitPoint <= 30)
 			{
-				HitPoint -= damageVal;
-				HitPoint = 0;
+				HitPoint -= 10;
 			}
 			else
 			{
-				HitPoint -= damageVal;
+				int damageVal = DamageCalculation(BaseDamage, StaminaModifier, HitPointModifier);
+				HitPoint -= FMath::Abs(damageVal);
 			}
+
+			if (HitPoint <= 0)
+			{
+				Die();
+			}
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Black, FString::Printf(TEXT("HitPoint: %f"), HitPoint));
 		}
 	}
 }

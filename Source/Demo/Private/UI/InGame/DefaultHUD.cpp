@@ -5,6 +5,7 @@
 
 
 #include "UI/InGame/CharacterStateHUD.h"
+#include "UI/InGame/Settlement.h"
 
 ADefaultHUD::ADefaultHUD()
 {
@@ -13,9 +14,23 @@ ADefaultHUD::ADefaultHUD()
 
 	CharacterStateHUDRefence = CharacterStateUIClass.Class;
 	*/
+
+	static ConstructorHelpers::FClassFinder<USettlement> SettlementUIClass(TEXT("/Game/Blueprints/UI/InGame/BP_Settlement"));
+	SettlementUIClassRef = SettlementUIClass.Class;
 }
 
 void ADefaultHUD::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
 }
+
+void ADefaultHUD::CreateSettlementUI(bool IsWin)
+{
+	SettlementUI = CreateWidget<USettlement>(GetWorld(), SettlementUIClassRef);
+	SettlementUI->SetResultText(IsWin);
+	SettlementUI->AddToViewport(0);
+}
+
+

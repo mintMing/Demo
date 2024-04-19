@@ -3,12 +3,30 @@
 
 #include "Controller/DefaultPlayerController.h"
 
+#include "Character/Chert.h"
+#include "UI/InGame/DefaultHUD.h"
+
+
 //#include "Camera/DynamicCamera.h"
 
 ADefaultPlayerController::ADefaultPlayerController()
 {
-    
+
 }
+/*
+void ADefaultPlayerController::OpenAIUI()
+{
+	AChert *Player = Cast<AChert>(GetPawn());
+	if (Player)
+	{
+		Player->FindAITargetPtr();
+	}
+	if (ADefaultHUD *HUD = Cast<ADefaultHUD>(GetHUD()))
+	{
+		HUD->CreateFightMainUI();
+	}
+}
+*/
 /*
 void ADefaultPlayerController::OnPossess(APawn *aPawn)
 {

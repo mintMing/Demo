@@ -18,6 +18,7 @@
 #include "AICharacter/Samurai.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AICharacter/SamuraiController.h"
+#include "Components/CapsuleComponent.h"
 
 
 // Sets default values
@@ -318,7 +319,7 @@ void ACharacter_Base::EnableMeleeCollision()
 	for (auto CollisionTarget : OverlapActors)
 	{
 		ASamurai *Target = Cast<ASamurai>(CollisionTarget);
-		checkf(Target, TEXT("Character_Base£ºTarget is not valid."));
+		check(Target);
 		if (Target)
 		{
 			Target->Affected();
@@ -334,6 +335,11 @@ void ACharacter_Base::Die()
 	RemovePlayerInput();
 	// ¹Ø±Õ½ºÄÒÌåµÄÅö×²
 	if (GetCapsuleComponent())
+	{
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+		
+	if (GetMesh())
 	{
 		GetMesh()->SetCollisionObjectType(ECC_PhysicsBody);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);

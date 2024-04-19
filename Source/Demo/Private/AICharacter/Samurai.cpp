@@ -56,6 +56,9 @@ ASamurai::ASamurai()
 	RushAttackPosition = FVector(0, 0, 0);
 	ThumpDirection = 1;
 
+	MaxHitPoint = 100.0f;
+	HitPoint = MaxHitPoint;
+
 }
 
 // Called when the game starts or when spawned
@@ -191,13 +194,13 @@ void ASamurai::ApplyBleedingDamage()
 	// 定义随机数生成器
 	std::random_device rd; // 用于获得种子
 	std::mt19937 gen(rd()); // Mersenne Twister 随机数引擎
-	std::uniform_int_distribution<int> distribution(static_cast<int>(EDamageLevel::COMMON), static_cast<int>(EDamageLevel::COMMON) * 3); // 均匀分布，范围为 COMMON 到 BLEEDING 的三倍
+	std::uniform_int_distribution<int> distribution(static_cast<int>(EDamageLevel::COMMON), static_cast<int>(EDamageLevel::COMMON) * 1.1); // 均匀分布，范围为 COMMON 到 BLEEDING 的倍数
 
 	// 生成随机伤害值
 	int damage = distribution(gen);
 
 	// 确保伤害值不小于 COMMON 且不大于 BLEEDING 的三倍
-	damage = FMath::Clamp(damage, static_cast<int>(EDamageLevel::COMMON), static_cast<int>(EDamageLevel::COMMON) * 3);
+	damage = FMath::Clamp(damage, static_cast<int>(EDamageLevel::COMMON), static_cast<int>(EDamageLevel::COMMON) * 1.2);
 
 	PlayAffectedSound();
 	HitPoint -= damage;
@@ -217,8 +220,7 @@ void ASamurai::Affected()
 		{
 			HitPoint -= 5;
 			PlayAffectedSound();
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("NPC Die"));
-			// Death();
+			Death();
 		}
 		else
 		{
@@ -298,6 +300,12 @@ void ASamurai::Death()
 
 		GetMesh()->SetAllBodiesBelowSimulatePhysics("pelvis", true);
 	}
+	DeathUI();
+}
+
+void ASamurai::DeathUI()
+{
+
 }
 
 void ASamurai::RushThump()

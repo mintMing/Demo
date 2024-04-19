@@ -19,6 +19,11 @@ private:
 
 	ADefaultPlayerController();
 
+	/*
+	UFUNCTION(BlueprintCallable)
+	void OpenAIUI();
+	*/
+
 	//virtual void OnPossess(APawn *aPawn) override;
 
 };

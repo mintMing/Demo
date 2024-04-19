@@ -9,7 +9,8 @@
 
 ADefaultGameMode::ADefaultGameMode()
 {
-	static ConstructorHelpers::FClassFinder<AChert> PlayerBPClass(TEXT("/Game/Blueprints/Character/BP_Chert"));
+ 	static ConstructorHelpers::FClassFinder<AChert> PlayerBPClass(TEXT("/Game/Blueprints/Character/BP_Chert"));
+	check(PlayerBPClass.Class);
 	if (PlayerBPClass.Class)
 	{
 		DefaultPawnClass = PlayerBPClass.Class;
