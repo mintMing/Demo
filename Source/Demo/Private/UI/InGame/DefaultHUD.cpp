@@ -6,6 +6,7 @@
 
 #include "UI/InGame/CharacterStateHUD.h"
 #include "UI/InGame/Settlement.h"
+#include "Entrusted/EventManager.h"
 
 ADefaultHUD::ADefaultHUD()
 {
@@ -23,7 +24,8 @@ void ADefaultHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	UEventManager::GetInstancePtr()->OpenUI.BindUObject(this, &ADefaultHUD::CreateSettlementUI);
+
 }
 
 void ADefaultHUD::CreateSettlementUI(bool IsWin)

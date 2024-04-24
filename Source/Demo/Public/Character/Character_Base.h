@@ -256,8 +256,12 @@ public:
 	// ÊÜ»÷
 	virtual void Affected() PURE_VIRTUAL(APlayer_Base::Affected,);
 
-	//ËÀÍö
+	// ËÀÍö
 	void Die();
+
+	// ËÀÍöUIÊÂ¼ş
+	void DeathUI();
+
 
 	// AI
 public:

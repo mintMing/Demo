@@ -16,6 +16,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Entrusted/EventManager.h"
 
 
 // Sets default values
@@ -72,7 +73,9 @@ void ASamurai::BeginPlay()
 	AIController = Cast<ASamuraiController>(GetController());
 	check(AIController);
 
+	// 观察行为的开启
 	GetWorld()->GetTimerManager().SetTimer(DelayFindPlayerPtr, this, &ASamurai::FindTargetPawn, 1.0f, false, 1.0f);
+
 	GetWorld()->GetTimerManager().SetTimer(DelayRandomThumb, this, &ASamurai::EnableThump,
 		UKismetMathLibrary::RandomFloatInRange(13.f, 19.f), true, UKismetMathLibrary::RandomFloatInRange(13.f, 19.f));
 }
@@ -157,11 +160,6 @@ void ASamurai::EnableAttackCollision()
 			Target->Affected();
 		}
 	}
-}
-
-FVector ASamurai::GetTargetPosition()
-{
-	return TargetPawn->DirectionArrow->GetComponentLocation();
 }
 
 void ASamurai::AccumulatedHit()
@@ -305,7 +303,7 @@ void ASamurai::Death()
 
 void ASamurai::DeathUI()
 {
-
+	UEventManager::GetInstancePtr()->OpenUI.ExecuteIfBound(true);
 }
 
 void ASamurai::RushThump()
@@ -353,6 +351,7 @@ void ASamurai::ThumpMovement(int32 Direction)
 
 	// 由 FRotator 创建一个旋转矩阵，将局部空间转换为世界空间，从旋转矩阵中获取单位 Y 轴向量。
 	const FVector LocalVector = FRotationMatrix(FRotator(0, LocalRotation.Yaw, 0)).GetUnitAxis(EAxis::Y);
+
 	AddMovementInput(LocalVector, Direction);
 }
 
@@ -375,6 +374,11 @@ void ASamurai::FindTargetPawn()
 	}
 	checkf(TargetPawn, TEXT("Samurai：TargetPawn is not valid."));
 	AIController->GetBlackboardComponent()->SetValueAsObject("TarPawn", TargetPawn);
+}
+
+FVector ASamurai::GetTargetPosition()
+{
+	return TargetPawn->DirectionArrow->GetComponentLocation();
 }
 
 void ASamurai::RunMovement(bool IsRun)
@@ -406,5 +410,4 @@ void ASamurai::DrawTheSword()
 			}
 		}
 	}
-
 }

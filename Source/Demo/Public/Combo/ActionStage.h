@@ -50,5 +50,4 @@ public:
 	virtual void Derive() = 0;
 	virtual void Gap() = 0;
 	virtual void End() = 0;
-
 };

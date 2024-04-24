@@ -142,7 +142,9 @@ public:
 
 	void Roll();
 
+	UFUNCTION(BlueprintCallable)
 	void Death();
+
 	// ËÀÍöUIÊÂ¼ş
 	void DeathUI();
 

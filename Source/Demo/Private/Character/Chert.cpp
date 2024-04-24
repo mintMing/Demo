@@ -59,7 +59,6 @@ void AChert::BeginPlay()
 		{
 			Subsystem->AddMappingContext(InputMappingContext, 0);
 		}
-
 	}
 }
 
@@ -228,6 +227,12 @@ void AChert::SwordDefense()
 	if (IsCanSwordDefense())
 	{
 		CharacterState = ECharacterState::DEFENSE;
+
+		if (Stamina < DefenseSubStamina)
+		{
+			CharacterState = ECharacterState::IDLE;
+			// SequenceAttackAnims(DestroyDefenseAnims);
+		}
 	}
 }
 
@@ -260,6 +265,7 @@ void AChert::Slide()
 {
 	if (IsCanSlide())
 	{
+		bIsIgnoreHit = true;
 		CameraShakeFeedback(false);
 		Stamina -= SlideSubStamina;
 		CharacterState = ECharacterState::SLIDE;
@@ -324,13 +330,12 @@ void AChert::Affected()
 bool AChert::IsCanAffected()
 {
 	return true;
-	/*
+	
 	if (!bIsIgnoreHit)
 	{
 		return true;
 	}
 	return false;
-	*/
 }
 
 void AChert::DestroyDefense()
@@ -350,46 +355,42 @@ void AChert::DestroyDefense()
 	}
 }
 
-void AChert::GetClosestAI(float Radius, AActor *&Target, bool &CollisionAnyItem)
-{
-	/*
-	LockActors.Empty();
 
+// 锁定代码
+void AChert::GetClosestAI(float Radius, AActor *&Target, bool &CollisionAnyItem){
+	// 获取需要锁定的Actors
+	LockActors.Empty();
+	// 碰撞类型
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectType;
+	// 碰撞忽略自身
 	ObjectType.Add(EObjectTypeQuery::ObjectTypeQuery3);
 
 	TArray<AActor *> IgnoreActors;
 	IgnoreActors.Add(this);
-
 	TArray<FHitResult> OutHits;
-
+	// 生成球形碰撞检测
 	CollisionAnyItem = UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), GetActorLocation(), GetActorLocation(),
 		Radius, ObjectType, false, IgnoreActors, EDrawDebugTrace::ForDuration,
 		OutHits, true);
 
-	for (const FHitResult& Elem : OutHits)
-	{
+	for (const FHitResult& Elem : OutHits){
 		AActor *HitActor = Elem.GetActor();
-		if (HitActor->GetClass()->ImplementsInterface(ULockSystem::StaticClass()))
-		{
+		// 碰撞检测到的actor是否实现了接口
+		if (HitActor->GetClass()->ImplementsInterface(ULockSystem::StaticClass())){
 			LockActors.Add(HitActor);
 		}
 	}
-
-	if (LockActors.Num() > 0)
-	{
+	if (LockActors.Num() > 0){
 		Target = LockActors[0];
 		DistanceofPlayerAndAI = FMath::Abs(Target->GetDistanceTo(this));
 	}
 
-	for (const AActor *Elem : LockActors)
-	{
-		if (Elem->GetDistanceTo(this) < DistanceofPlayerAndAI)
-		{
+	for (const AActor *Elem : LockActors){
+		// 只需要离角色最近的Actor
+		if (Elem->GetDistanceTo(this) < DistanceofPlayerAndAI){
 			Elem = Target;
 		}
 	}
-	*/
 }
 
 void AChert::LockAI()

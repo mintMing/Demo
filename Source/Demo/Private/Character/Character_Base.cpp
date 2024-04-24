@@ -19,6 +19,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AICharacter/SamuraiController.h"
 #include "Components/CapsuleComponent.h"
+#include "Entrusted/EventManager.h"
 
 
 // Sets default values
@@ -78,7 +79,6 @@ ACharacter_Base::ACharacter_Base()
 	HitPointModifier = 0.1f;
 
 	DefenseSubStamina = 5.0f;
-
 }
 
 // Called when the game starts or when spawned
@@ -102,19 +102,19 @@ void ACharacter_Base::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
 	//if (CharacterState == ECharacterState::IDLE && GetVelocity().Size() < 5.0f)
 	//{
+		// 角色前向量
 		ForwardVec = (MoveForwardVal * UKismetMathLibrary::GetForwardVector(FRotator(0, GetController()->GetControlRotation().Yaw, 0)) * 200.0f);
+		// 角色右向量（
 		RightVec = (MoveRightVal * UKismetMathLibrary::GetRightVector(FRotator(0, GetController()->GetControlRotation().Yaw, 0)) * 200.0f);
+		// 移动目标位置向量
 		CharacterDirection = GetActorLocation() + ForwardVec + RightVec;
 
 		//FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), ((CharacterDirection - GetActorLocation()).GetSafeNormal()).Rotation(), GetWorld()->GetDeltaSeconds(), CharacterTurnInterpSpeed);
 		//SetActorRotation(NewRotation);
 	//}
 	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), CharacterDirection, 300.0f, FColor::Red);
-	
-	
 }
 
 // Called to bind functionality to input
@@ -348,12 +348,17 @@ void ACharacter_Base::Die()
 
 		// pelvis 以下启用角色的物理模拟
 		GetMesh()->SetAllBodiesBelowSimulatePhysics("pelvis", true);
+		DeathUI();
 	}
+}
+
+void ACharacter_Base::DeathUI()
+{
+	UEventManager::GetInstancePtr()->OpenUI.ExecuteIfBound(false);
 }
 
 void ACharacter_Base::FindAITargetPtr()
 {
-	
 	AITarget = Cast<ASamurai>(UGameplayStatics::GetActorOfClass(GetWorld(), InsAITarget));
 	checkf(AITarget, TEXT("Character_Base：AITarget is not valid."));
 }

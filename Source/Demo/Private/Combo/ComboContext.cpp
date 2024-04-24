@@ -34,12 +34,25 @@ UComboContext::UComboContext()
 	CurrentComboAction->AddChildCombo(4, DeriveCombo4);
 	*/
 
-
 	ComboMapping.Add(CurrentComboAction->Action, CurrentComboAction);
 	ComboMapping.Add(DeriveCombo1->Action, DeriveCombo1);
 	ComboMapping.Add(DeriveCombo2->Action, DeriveCombo2);
 	ComboMapping.Add(DeriveCombo3->Action, DeriveCombo3);
 	//ComboMapping.Add(DeriveCombo4->Action, DeriveCombo4);
+
+	/*
+	CurrentComboAction = CreateDefaultSubobject<UComboNode>(TEXT("CurrentCombo"));
+	ComboMapping.Add(CurrentComboAction->Action, CurrentComboAction);
+
+	UComboNode *DeriveCombo1 = CreateDefaultSubobject<UComboNode>(TEXT("DeriveCombo1"));
+	//...
+	//...
+	CurrentComboAction->AddChildCombo(3, DeriveCombo3);
+	//...
+	ComboMapping.Add(DeriveCombo1->Action, DeriveCombo1);
+	// ... 其余子节点同上
+	*/
+
 }
 
 UComboNode *UComboContext::FindRootCombo(const EComboActions RootAction)

@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Combo/ComboGuide.h"
 #include "Enum/CharacterState.h"
 
@@ -10,7 +9,6 @@ UComboGuide::UComboGuide()
 	ResetRootAction = false;
 
 	ComboContext = CreateDefaultSubobject<UComboContext>(TEXT("ComboContext"));
-
 }
 
 void UComboGuide::Pre()
@@ -45,7 +43,7 @@ void UComboGuide::Pre()
 		SaveAttack = true;
 		return;
 	}
-
+	
 	if (ComboContext->CurrentComboAction->ActionStage == EActionStages::Gap)
 	{
 		// 找到当前动作节点的子节点
@@ -115,7 +113,6 @@ void UComboGuide::ResetCombo()
 	ComboContext->CurrentComboAction->CurrentActionIndex = 0;
 	ComboContext->CurrentComboAction->ActionStage = EActionStages::End;
 	SaveAttack = false;
-	
 }
 
 bool UComboGuide::IsActionIsChild() const
@@ -134,5 +131,3 @@ void UComboGuide::RootToggleToChild() const
 		}
 	}
 }
-
-

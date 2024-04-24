@@ -25,7 +25,7 @@ EBTNodeResult::Type UThump::ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8
 				AICharacter->SetActorTickEnabled(true);
 
 				GetWorld()->GetTimerManager().SetTimer(DelayThump, this, &UThump::EndThump,
-					UKismetMathLibrary::RandomFloatInRange(5.f, 10.f), false, UKismetMathLibrary::RandomFloatInRange(5.f, 10.f));
+					UKismetMathLibrary::RandomFloatInRange(5.0f, 10.0f), false, UKismetMathLibrary::RandomFloatInRange(5.0f, 10.0f));
 			}
 			return EBTNodeResult::Succeeded;
 		}
